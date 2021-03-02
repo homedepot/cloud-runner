@@ -1,0 +1,312 @@
+swagger: "2.0"
+info:
+  description: "This is the cloud-runner API definition"
+  version: "0.1.0"
+  title: "Cloud Runner"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "cloud-runner.cd:80"
+tags:
+- name: "deployments"
+  description: "Operations about deployments"
+- name: "credentials"
+  description: "Operations about credentials"
+schemes:
+- "https"
+- "http"
+paths:
+  /v1/deployments:
+    post:
+      tags:
+      - "deployments"
+      summary: "Create a new Cloud Run deployment"
+      description: ""
+      operationId: "createDeployment"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object that describes Cloud Run deployment"
+        required: true
+        schema:
+          $ref: "#/definitions/Deployment"
+      - in: "header"
+        name: "apiKey"
+        description: "API Key required for create operations"
+        type: "string"
+        required: true
+      responses:
+        "201":
+          description: "Deployment created"
+          schema:
+            $ref: "#/definitions/Deployment"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Error"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
+        "404":
+          description: "Account Not Found"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Generic error"
+          schema:
+            $ref: "#/definitions/Error"
+  /v1/deployments/{deploymentID}:
+    get:
+      tags:
+      - "deployments"
+      summary: "Get a deployment by ID"
+      description: "Returns the status of the deployment"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "deploymentID"
+        in: "path"
+        description: "ID of deployment to return"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/DeploymentStatus"
+        "400":
+          description: "Invalid ID supplied"
+          schema:
+            $ref: "#/definitions/Error"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
+        "404":
+          description: "Deployment not found"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Generic error"
+          schema:
+            $ref: "#/definitions/Error"
+  /v1/credentials:
+    get:
+      tags:
+      - "credentials"
+      summary: "List credentials"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "onlyForUser"
+        in: "query"
+        description: "If true, only retrieve the accounts for the auth'd user"
+        required: false
+        type: "string"
+      responses:
+        "200":
+          description: "List of credentials"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Credentials"
+        "500":
+          description: "Generic error"
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      tags:
+      - "credentials"
+      summary: "Create credentials for a given GCP project"
+      description: ""
+      operationId: "createCredentials"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Object that describes the credentials"
+        required: true
+        schema:
+          $ref: "#/definitions/Credentials"
+      - in: "header"
+        name: "apiKey"
+        description: "API Key required for create operations"
+        type: "string"
+        required: true
+      responses:
+        "201":
+          description: "Credentials created"
+          schema:
+            $ref: "#/definitions/Credentials"
+        "400":
+          description: "Bad Request"
+          schema:
+            $ref: "#/definitions/Error"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Error"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
+        "409":
+          description: "Credentials already exist"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Generic error"
+          schema:
+            $ref: "#/definitions/Error"
+  /v1/credentials/{account}:
+    get:
+      tags:
+      - "credentials"
+      summary: "Get credentials by account name"
+      description: "Returns the credentials for the given account name"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "account"
+        in: "path"
+        description: "Account name"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Credentials"
+        "404":
+          description: "Account name not found"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Generic error"
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      tags:
+      - "credentials"
+      summary: "Delete credentials for a given account name"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "account"
+        in: "path"
+        description: "Account name"
+        required: true
+        type: "string"
+      responses:
+        "204":
+          description: "No content"
+        "404":
+          description: "Account name not found"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "Generic error"
+          schema:
+            $ref: "#/definitions/Error"
+definitions:
+  Credentials:
+    type: "object"
+    properties:
+      account:
+        type: "string"
+        example: "cr-test-project-id-pr"
+      lifecycle:
+        type: "string"
+        example: "pr"
+      projectID:
+        type: "string"
+        example: "test-project-id"
+      readGroups:
+        type: "array"
+        items:
+          type: "string"
+          example: "gg_my_group"
+      writeGroups:
+        type: "array"
+        items:
+          type: "string"
+          example: "gg_my_group"
+  Deployment:
+    type: "object"
+    required:
+    - account
+    - allowUnauthenticated
+    - image
+    - region
+    - serviceName
+    properties:
+      account:
+        type: "string"
+        example: "cr-test-project-id-pr"
+      allowUnauthenticated:
+        type: "boolean"
+        example: false
+      id:
+        type: "string"
+        format: "uuid"
+      image:
+        type: "string"
+        example: "gcr.io/my-project/my-image:v1.0.0"
+      maxInstances:
+        type: "integer"
+        example: 4
+      memory:
+        type: "string"
+        example: "1G"
+      region:
+        type: "string"
+        example: "us-east1"
+      serviceName:
+        type: "string"
+        example: "my-service"
+      vpcConnector:
+        type: "string"
+        example: "my-vpc-connector"
+  DeploymentStatus:
+    type: "object"
+    properties:
+      endTime:
+        $ref: '#/definitions/TIME'
+      id:
+        type: "string"
+        format: "uuid"
+      startTime:
+        $ref: '#/definitions/TIME'
+      status:
+        type: "string"
+        example: "FAILED"
+      output:
+        type: "string"
+        example: "ERROR: (gcloud.run.deploy) argument --image: Must be specified"
+  Error:
+    type: "object"
+    properties:
+      error:
+        type: "string"
+        example: "an error occurred"
+  TIME:
+    example: "2006-01-02T15:04:05.999Z"
+    type: string
+    x-go-type:
+      type: Time
+      import:
+        package: time
+        alias: time
