@@ -1,4 +1,4 @@
-<img src="https://github.homedepot.com/cd/cloud-runner/blob/media/cloud-runner.png" width="125" align="left">
+<img src="https://github.homedepot.com/cd/cloud-runner/blob/media/cloud-runner.png" width="175" align="left">
 
 # cloud-runner
 
@@ -12,5 +12,5 @@ Cloud Runner is a simple microservice that builds and runs a `gcloud run deploy`
 
 #### Build
 ```bash
-go build cmd/skipper/skipper.go
+go build -o cloud-runner cmd/cloud-runner/main.go
 ```
