@@ -2,3 +2,5 @@
 .idea/
 /main
 /cloud-runner
+build/
+.secrets/
