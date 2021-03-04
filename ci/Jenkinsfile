@@ -1,0 +1,11 @@
+#!groovy
+@Library(['cd-jenkins@master']) _
+
+import com.homedepot.cd.jenkins.models.Profile
+import com.homedepot.cd.jenkins.models.Stages
+
+templateGoPipeline {
+    profile = new Profile("go", "cloud-runner")
+        .webhookSource("cd-cloud-runner-sandbox")
+        .spinnakerApplication("cd-cloud-runner")
+}
