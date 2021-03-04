@@ -1,2 +1,4 @@
 *.coverprofile
 .idea/
+/main
+/cloud-runner
