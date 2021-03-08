@@ -24,7 +24,7 @@ go build -o cloud-runner cmd/cloud-runner/main.go
 | `SQL_NAME` | SQL database name |
 | `SQL_PASS` | SQL password |
 | `SQL_USER` | SQL username |
-| `THD_IDENTITY_CLIENT_ID` | THD IDP client key (e.g. `spiffe://homedepot.dev/om-api-security-client`)  |
+| `THD_IDENTITY_CLIENT_ID` | THD IDP client ID (e.g. `spiffe://homedepot.dev/om-api-security-client`)  |
 | `THD_IDENTITY_CLIENT_SECRET` | THD IDP client secret |
 | `THD_IDENTITY_RESOURCE` | THD IDP resource (e.g. `spiffe://homedepot.dev/om-api-security-api`) |
 | `THD_IDENTITY_TOKEN_ENDPOINT` | THD IDP token endpoint (e.g. `https://identity-qa.homedepot.com/as/token.oauth2`) |
