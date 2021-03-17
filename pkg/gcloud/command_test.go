@@ -19,7 +19,7 @@ var _ = Describe("Command", func() {
 			Image("gcr.io/not-a-project13765/not-an-image:9.0.4").
 			ProjectID("fake-project-id").
 			Region("fake-region").
-			ServiceName("fake-service-name")
+			Service("fake-service")
 	})
 
 	Describe("#Build", func() {
@@ -49,9 +49,9 @@ var _ = Describe("Command", func() {
 			})
 		})
 
-		When("validating the service name fails", func() {
+		When("validating the service fails", func() {
 			BeforeEach(func() {
-				c.ServiceName("welkjJKFWE-")
+				c.Service("welkjJKFWE-")
 			})
 
 			It("returns an error", func() {
@@ -78,7 +78,7 @@ var _ = Describe("Command", func() {
 
 			It("succeeds", func() {
 				Expect(err).To(BeNil())
-				Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service-name " +
+				Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service " +
 					"--project fake-project-id " +
 					"--image 'gcr.io/not-a-project13765/not-an-image:9.0.4' " +
 					"--platform managed " +
@@ -94,7 +94,7 @@ var _ = Describe("Command", func() {
 
 			It("succeeds", func() {
 				Expect(err).To(BeNil())
-				Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service-name " +
+				Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service " +
 					"--project fake-project-id " +
 					"--image 'gcr.io/not-a-project13765/not-an-image:9.0.4' " +
 					"--platform managed " +
@@ -123,7 +123,7 @@ var _ = Describe("Command", func() {
 			When("the memory is valid", func() {
 				It("succeeds", func() {
 					Expect(err).To(BeNil())
-					Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service-name " +
+					Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service " +
 						"--project fake-project-id " +
 						"--image 'gcr.io/not-a-project13765/not-an-image:9.0.4' " +
 						"--platform managed " +
@@ -153,7 +153,7 @@ var _ = Describe("Command", func() {
 			When("the vpc connector is valid", func() {
 				It("succeeds", func() {
 					Expect(err).To(BeNil())
-					Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service-name " +
+					Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service " +
 						"--project fake-project-id " +
 						"--image 'gcr.io/not-a-project13765/not-an-image:9.0.4' " +
 						"--platform managed " +
@@ -167,7 +167,7 @@ var _ = Describe("Command", func() {
 		When("the command is valid", func() {
 			It("succeeds", func() {
 				Expect(err).To(BeNil())
-				Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service-name " +
+				Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service " +
 					"--project fake-project-id " +
 					"--image 'gcr.io/not-a-project13765/not-an-image:9.0.4' " +
 					"--platform managed " +

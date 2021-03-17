@@ -40,7 +40,7 @@ type CloudRunCommandBuilder interface {
 	Memory(string) CloudRunCommandBuilder
 	ProjectID(string) CloudRunCommandBuilder
 	Region(string) CloudRunCommandBuilder
-	ServiceName(string) CloudRunCommandBuilder
+	Service(string) CloudRunCommandBuilder
 	VPCConnector(string) CloudRunCommandBuilder
 }
 
@@ -52,7 +52,7 @@ type cloudRunCommandBuilder struct {
 	memory               string
 	projectID            string
 	region               string
-	serviceName          string
+	service              string
 	vpcConnector         string
 }
 
@@ -85,7 +85,7 @@ func (c *cloudRunCommandBuilder) Build() (CloudRunCommand, error) {
 	}
 
 	// Set the service name.
-	command = appendString(command, c.serviceName)
+	command = appendString(command, c.service)
 	// Set the --project flag
 	command = appendString(command, flagProject)
 	command = appendString(command, c.projectID)
@@ -151,7 +151,7 @@ func (c *cloudRunCommandBuilder) validateRequiredFlags() error {
 		return fmt.Errorf("error validating project ID: %w", err)
 	}
 
-	err = validate(regexLowerCaseAlphanumericMax63Chars, c.serviceName)
+	err = validate(regexLowerCaseAlphanumericMax63Chars, c.service)
 	if err != nil {
 		return fmt.Errorf("error validating service name: %w", err)
 	}
@@ -237,9 +237,9 @@ func (c *cloudRunCommandBuilder) Region(region string) CloudRunCommandBuilder {
 	return c
 }
 
-// ServiceName sets the service name for the command.
-func (c *cloudRunCommandBuilder) ServiceName(serviceName string) CloudRunCommandBuilder {
-	c.serviceName = serviceName
+// Service sets the service name for the command.
+func (c *cloudRunCommandBuilder) Service(service string) CloudRunCommandBuilder {
+	c.service = service
 
 	return c
 }

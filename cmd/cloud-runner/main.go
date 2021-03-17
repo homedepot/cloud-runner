@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	ginprometheus "github.com/mcuadros/go-gin-prometheus"
 	"github.homedepot.com/cd/cloud-runner/pkg/api"
+	"github.homedepot.com/cd/cloud-runner/pkg/fiat"
+	"github.homedepot.com/cd/cloud-runner/pkg/snowql"
+	"github.homedepot.com/cd/cloud-runner/pkg/sql"
+	"github.homedepot.com/cd/cloud-runner/pkg/thd"
 )
 
 const (
@@ -24,10 +28,8 @@ func main() {
 
 	r := gin.New()
 
-	apiKey := os.Getenv("API_KEY")
-	if apiKey == "" {
-		fmt.Println("[CLOUD RUNNER] WARNING: API_KEY not set")
-	}
+	// Set the API key for create/delete operations.
+	api.WithKey(os.Getenv("API_KEY"))
 
 	// Setup metrics.
 	p := ginprometheus.NewPrometheus("cloud_runner")
@@ -44,9 +46,46 @@ func main() {
 	r.Use(gin.LoggerWithConfig(gin.LoggerConfig{SkipPaths: []string{"/healthz"}}))
 	r.Use(gin.Recovery())
 
-	api.Init(r)
+	// Setup Fiat Client.
+	fiatClient := fiat.NewDefaultClient()
 
-	err := r.Run(":80")
+	// Setup SnowQL Client.
+	snowQLClient := snowql.NewClient()
+	snowQLClient.WithURL(os.Getenv("SNOWQL_URL"))
+
+	// Setup SQL Client.
+	sqlClient := sql.NewClient()
+	sqlClient.WithHost(os.Getenv("SQL_HOST"))
+	sqlClient.WithName(os.Getenv("SQL_NAME"))
+	sqlClient.WithPass(os.Getenv("SQL_PASS"))
+	sqlClient.WithUser(os.Getenv("SQL_USER"))
+
+	err := sqlClient.Connect(sqlClient.Connection())
+	if err != nil {
+		panic(err)
+	}
+
+	// Setup THD Identity Client.
+	thdIdenityClient := thd.NewIdentityClient()
+	thdIdenityClient.WithClientID(os.Getenv("THD_IDENTITY_CLIENT_ID"))
+	thdIdenityClient.WithClientSecret(os.Getenv("THD_IDENTITY_CLIENT_SECRET"))
+	thdIdenityClient.WithResource(os.Getenv("THD_IDENTITY_RESOURCE"))
+	thdIdenityClient.WithTokenEndpoint(os.Getenv("THD_IDENTITY_TOKEN_ENDPOINT"))
+
+	// Setup the server.
+	server := api.NewServer()
+	server.WithEngine(r)
+	server.WithFiatClient(fiatClient)
+	server.WithSnowQLClient(snowQLClient)
+	server.WithSQLClient(sqlClient)
+	server.WithTHDIdentityClient(thdIdenityClient)
+
+	err = server.Setup()
+	if err != nil {
+		panic(err)
+	}
+
+	err = r.Run(":80")
 	if err != nil {
 		panic(err)
 	}

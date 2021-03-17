@@ -113,6 +113,11 @@ paths:
         description: "If true, only retrieve the accounts for the auth'd user"
         required: false
         type: "string"
+      - name: "X-Spinnaker-User"
+        in: "header"
+        description: "The user making the request"
+        required: false
+        type: "string"
       responses:
         "200":
           description: "List of credentials"
@@ -120,6 +125,10 @@ paths:
             type: "array"
             items:
               $ref: "#/definitions/Credentials"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Error"
         "500":
           description: "Generic error"
           schema:
@@ -210,9 +219,22 @@ paths:
         description: "Account name"
         required: true
         type: "string"
+      - name: "X-Spinnaker-User"
+        in: "header"
+        description: "The user making the request"
+        required: true
+        type: "string"
       responses:
         "204":
           description: "No content"
+        "401":
+          description: "Unauthorized"
+          schema:
+            $ref: "#/definitions/Error"
+        "403":
+          description: "Forbidden"
+          schema:
+            $ref: "#/definitions/Error"
         "404":
           description: "Account name not found"
           schema:
@@ -251,7 +273,7 @@ definitions:
     - allowUnauthenticated
     - image
     - region
-    - serviceName
+    - service
     properties:
       account:
         type: "string"
@@ -274,7 +296,7 @@ definitions:
       region:
         type: "string"
         example: "us-east1"
-      serviceName:
+      service:
         type: "string"
         example: "my-service"
       vpcConnector:
@@ -310,3 +332,4 @@ definitions:
       import:
         package: time
         alias: time
+
