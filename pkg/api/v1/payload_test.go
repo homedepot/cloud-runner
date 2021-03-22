@@ -14,6 +14,17 @@ const payloadRequestCredentials = `{
 						]
           }`
 
+const payloadRequestDeployment = `{
+						"account": "cr-test-project-id-pr",
+						"allowUnauthenticated": false,
+						"image": "gcr.io/my-project/my-image:v1.0.0",
+						"maxInstances": 4,
+						"memory": "1G",
+						"region": "us-east1",
+						"service": "my-service",
+						"vpcConnector": "my-vpc-connector"
+					}`
+
 const payloadConflictRequest = `{
             "error": "credentials already exists"
           }`
@@ -62,9 +73,17 @@ const payloadCredentialsNotFound = `{
 						"error": "credentials not found"
 					}`
 
+const payloadDeploymentNotFound = `{
+            "error": "deployment not found"
+          }`
+
 const payloadCredentialsGetGenericError = `{
 						"error": "error getting credentials"
 					}`
+
+const payloadDeploymentsGetGenericError = `{
+            "error": "error getting deployment"
+          }`
 
 const payloadCredentialsUnauthorized = `{
               "error": "requested credentials only for user, but X-Spinnaker-User header was not set"
@@ -76,6 +95,18 @@ const payloadCredentialsDeleteGenericError = `{
 
 const payloadCredentialsDeleteForbiddentError = `{
             "error": "user test-account does not have access to delete account test-name"
+          }`
+
+const payloadDeploymentsForbiddenError = `{
+            "error": "user test-account does not have access to use account cr-test-project-id-pr"
+          }`
+
+const payloadDeploymentsErrorBuildingCommand = `{
+            "error": "error building command"
+          }`
+
+const payloadDeploymentsErrorCreatingDeployment = `{
+            "error": "error creating deployment"
           }`
 
 const payloadCredentialsListEmpty = `{

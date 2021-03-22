@@ -35,12 +35,15 @@ type Client interface {
 	Connect(string, interface{}) error
 	Connection() (string, string)
 	CreateCredentials(cloudrunner.Credentials) error
+	CreateDeployment(cloudrunner.Deployment) error
 	CreateReadPermission(cloudrunner.CredentialsReadPermission) error
 	CreateWritePermission(cloudrunner.CredentialsWritePermission) error
 	DB() *gorm.DB
 	DeleteCredentials(string) error
 	GetCredentials(string) (cloudrunner.Credentials, error)
+	GetDeployment(string) (cloudrunner.Deployment, error)
 	ListCredentials() ([]cloudrunner.Credentials, error)
+	UpdateDeployment(cloudrunner.Deployment) error
 	WithHost(string)
 	WithName(string)
 	WithPass(string)
@@ -76,6 +79,7 @@ func (c *client) Connect(driver string, connection interface{}) error {
 		&cloudrunner.Credentials{},
 		&cloudrunner.CredentialsReadPermission{},
 		&cloudrunner.CredentialsWritePermission{},
+		&cloudrunner.Deployment{},
 	)
 
 	db.DB().SetMaxOpenConns(maxOpenConns)
@@ -100,6 +104,11 @@ func (c *client) Connection() (string, string) {
 // CreateCredentials inserts a new set of credentials into the DB.
 func (c *client) CreateCredentials(credentials cloudrunner.Credentials) error {
 	return c.db.Create(&credentials).Error
+}
+
+// CreateDeployment inserts a new deployment into the DB.
+func (c *client) CreateDeployment(d cloudrunner.Deployment) error {
+	return c.db.Create(&d).Error
 }
 
 // CreateReadPermission inserts a read permission into the database.
@@ -169,6 +178,14 @@ func (c *client) GetCredentials(account string) (cloudrunner.Credentials, error)
 	return cs[0], nil
 }
 
+// GetDeployment selects a deployment status by ID from the DB.
+func (c *client) GetDeployment(id string) (cloudrunner.Deployment, error) {
+	var d cloudrunner.Deployment
+	db := c.db.Find(&d, "id = ?", id)
+
+	return d, db.Error
+}
+
 // ListCredentials selects all credentials and their corresponding
 // permissions from the DB.
 func (c *client) ListCredentials() ([]cloudrunner.Credentials, error) {
@@ -192,6 +209,11 @@ func (c *client) ListCredentials() ([]cloudrunner.Credentials, error) {
 	}
 
 	return cs, nil
+}
+
+// UpdateDeployment updates a given deployment.
+func (c *client) UpdateDeployment(d cloudrunner.Deployment) error {
+	return c.db.Save(d).Error
 }
 
 func mergeRows(rows *sql.Rows) ([]cloudrunner.Credentials, error) {

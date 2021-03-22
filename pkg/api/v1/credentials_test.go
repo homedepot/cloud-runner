@@ -17,10 +17,10 @@ var _ = Describe("Credentials", func() {
 	Describe("#CreateCredentials", func() {
 		BeforeEach(func() {
 			setup()
-			fakeSQLClient.GetCredentialsReturns(cloudrunner.Credentials{}, errors.New("credentials not found"))
 			uri = svr.URL + "/v1/credentials"
 			body.Write([]byte(payloadRequestCredentials))
 			createRequest(http.MethodPost)
+			fakeSQLClient.GetCredentialsReturns(cloudrunner.Credentials{}, errors.New("credentials not found"))
 		})
 
 		AfterEach(func() {

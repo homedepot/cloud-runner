@@ -45,6 +45,17 @@ type FakeClient struct {
 	createCredentialsReturnsOnCall map[int]struct {
 		result1 error
 	}
+	CreateDeploymentStub        func(cloudrunner.Deployment) error
+	createDeploymentMutex       sync.RWMutex
+	createDeploymentArgsForCall []struct {
+		arg1 cloudrunner.Deployment
+	}
+	createDeploymentReturns struct {
+		result1 error
+	}
+	createDeploymentReturnsOnCall map[int]struct {
+		result1 error
+	}
 	CreateReadPermissionStub        func(cloudrunner.CredentialsReadPermission) error
 	createReadPermissionMutex       sync.RWMutex
 	createReadPermissionArgsForCall []struct {
@@ -100,6 +111,19 @@ type FakeClient struct {
 		result1 cloudrunner.Credentials
 		result2 error
 	}
+	GetDeploymentStub        func(string) (cloudrunner.Deployment, error)
+	getDeploymentMutex       sync.RWMutex
+	getDeploymentArgsForCall []struct {
+		arg1 string
+	}
+	getDeploymentReturns struct {
+		result1 cloudrunner.Deployment
+		result2 error
+	}
+	getDeploymentReturnsOnCall map[int]struct {
+		result1 cloudrunner.Deployment
+		result2 error
+	}
 	ListCredentialsStub        func() ([]cloudrunner.Credentials, error)
 	listCredentialsMutex       sync.RWMutex
 	listCredentialsArgsForCall []struct{}
@@ -110,6 +134,17 @@ type FakeClient struct {
 	listCredentialsReturnsOnCall map[int]struct {
 		result1 []cloudrunner.Credentials
 		result2 error
+	}
+	UpdateDeploymentStub        func(cloudrunner.Deployment) error
+	updateDeploymentMutex       sync.RWMutex
+	updateDeploymentArgsForCall []struct {
+		arg1 cloudrunner.Deployment
+	}
+	updateDeploymentReturns struct {
+		result1 error
+	}
+	updateDeploymentReturnsOnCall map[int]struct {
+		result1 error
 	}
 	WithHostStub        func(string)
 	withHostMutex       sync.RWMutex
@@ -271,6 +306,54 @@ func (fake *FakeClient) CreateCredentialsReturnsOnCall(i int, result1 error) {
 		})
 	}
 	fake.createCredentialsReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeClient) CreateDeployment(arg1 cloudrunner.Deployment) error {
+	fake.createDeploymentMutex.Lock()
+	ret, specificReturn := fake.createDeploymentReturnsOnCall[len(fake.createDeploymentArgsForCall)]
+	fake.createDeploymentArgsForCall = append(fake.createDeploymentArgsForCall, struct {
+		arg1 cloudrunner.Deployment
+	}{arg1})
+	fake.recordInvocation("CreateDeployment", []interface{}{arg1})
+	fake.createDeploymentMutex.Unlock()
+	if fake.CreateDeploymentStub != nil {
+		return fake.CreateDeploymentStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fake.createDeploymentReturns.result1
+}
+
+func (fake *FakeClient) CreateDeploymentCallCount() int {
+	fake.createDeploymentMutex.RLock()
+	defer fake.createDeploymentMutex.RUnlock()
+	return len(fake.createDeploymentArgsForCall)
+}
+
+func (fake *FakeClient) CreateDeploymentArgsForCall(i int) cloudrunner.Deployment {
+	fake.createDeploymentMutex.RLock()
+	defer fake.createDeploymentMutex.RUnlock()
+	return fake.createDeploymentArgsForCall[i].arg1
+}
+
+func (fake *FakeClient) CreateDeploymentReturns(result1 error) {
+	fake.CreateDeploymentStub = nil
+	fake.createDeploymentReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeClient) CreateDeploymentReturnsOnCall(i int, result1 error) {
+	fake.CreateDeploymentStub = nil
+	if fake.createDeploymentReturnsOnCall == nil {
+		fake.createDeploymentReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.createDeploymentReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -510,6 +593,57 @@ func (fake *FakeClient) GetCredentialsReturnsOnCall(i int, result1 cloudrunner.C
 	}{result1, result2}
 }
 
+func (fake *FakeClient) GetDeployment(arg1 string) (cloudrunner.Deployment, error) {
+	fake.getDeploymentMutex.Lock()
+	ret, specificReturn := fake.getDeploymentReturnsOnCall[len(fake.getDeploymentArgsForCall)]
+	fake.getDeploymentArgsForCall = append(fake.getDeploymentArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	fake.recordInvocation("GetDeployment", []interface{}{arg1})
+	fake.getDeploymentMutex.Unlock()
+	if fake.GetDeploymentStub != nil {
+		return fake.GetDeploymentStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fake.getDeploymentReturns.result1, fake.getDeploymentReturns.result2
+}
+
+func (fake *FakeClient) GetDeploymentCallCount() int {
+	fake.getDeploymentMutex.RLock()
+	defer fake.getDeploymentMutex.RUnlock()
+	return len(fake.getDeploymentArgsForCall)
+}
+
+func (fake *FakeClient) GetDeploymentArgsForCall(i int) string {
+	fake.getDeploymentMutex.RLock()
+	defer fake.getDeploymentMutex.RUnlock()
+	return fake.getDeploymentArgsForCall[i].arg1
+}
+
+func (fake *FakeClient) GetDeploymentReturns(result1 cloudrunner.Deployment, result2 error) {
+	fake.GetDeploymentStub = nil
+	fake.getDeploymentReturns = struct {
+		result1 cloudrunner.Deployment
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *FakeClient) GetDeploymentReturnsOnCall(i int, result1 cloudrunner.Deployment, result2 error) {
+	fake.GetDeploymentStub = nil
+	if fake.getDeploymentReturnsOnCall == nil {
+		fake.getDeploymentReturnsOnCall = make(map[int]struct {
+			result1 cloudrunner.Deployment
+			result2 error
+		})
+	}
+	fake.getDeploymentReturnsOnCall[i] = struct {
+		result1 cloudrunner.Deployment
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *FakeClient) ListCredentials() ([]cloudrunner.Credentials, error) {
 	fake.listCredentialsMutex.Lock()
 	ret, specificReturn := fake.listCredentialsReturnsOnCall[len(fake.listCredentialsArgsForCall)]
@@ -551,6 +685,54 @@ func (fake *FakeClient) ListCredentialsReturnsOnCall(i int, result1 []cloudrunne
 		result1 []cloudrunner.Credentials
 		result2 error
 	}{result1, result2}
+}
+
+func (fake *FakeClient) UpdateDeployment(arg1 cloudrunner.Deployment) error {
+	fake.updateDeploymentMutex.Lock()
+	ret, specificReturn := fake.updateDeploymentReturnsOnCall[len(fake.updateDeploymentArgsForCall)]
+	fake.updateDeploymentArgsForCall = append(fake.updateDeploymentArgsForCall, struct {
+		arg1 cloudrunner.Deployment
+	}{arg1})
+	fake.recordInvocation("UpdateDeployment", []interface{}{arg1})
+	fake.updateDeploymentMutex.Unlock()
+	if fake.UpdateDeploymentStub != nil {
+		return fake.UpdateDeploymentStub(arg1)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fake.updateDeploymentReturns.result1
+}
+
+func (fake *FakeClient) UpdateDeploymentCallCount() int {
+	fake.updateDeploymentMutex.RLock()
+	defer fake.updateDeploymentMutex.RUnlock()
+	return len(fake.updateDeploymentArgsForCall)
+}
+
+func (fake *FakeClient) UpdateDeploymentArgsForCall(i int) cloudrunner.Deployment {
+	fake.updateDeploymentMutex.RLock()
+	defer fake.updateDeploymentMutex.RUnlock()
+	return fake.updateDeploymentArgsForCall[i].arg1
+}
+
+func (fake *FakeClient) UpdateDeploymentReturns(result1 error) {
+	fake.UpdateDeploymentStub = nil
+	fake.updateDeploymentReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeClient) UpdateDeploymentReturnsOnCall(i int, result1 error) {
+	fake.UpdateDeploymentStub = nil
+	if fake.updateDeploymentReturnsOnCall == nil {
+		fake.updateDeploymentReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.updateDeploymentReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeClient) WithHost(arg1 string) {
@@ -658,6 +840,8 @@ func (fake *FakeClient) Invocations() map[string][][]interface{} {
 	defer fake.connectionMutex.RUnlock()
 	fake.createCredentialsMutex.RLock()
 	defer fake.createCredentialsMutex.RUnlock()
+	fake.createDeploymentMutex.RLock()
+	defer fake.createDeploymentMutex.RUnlock()
 	fake.createReadPermissionMutex.RLock()
 	defer fake.createReadPermissionMutex.RUnlock()
 	fake.createWritePermissionMutex.RLock()
@@ -668,8 +852,12 @@ func (fake *FakeClient) Invocations() map[string][][]interface{} {
 	defer fake.deleteCredentialsMutex.RUnlock()
 	fake.getCredentialsMutex.RLock()
 	defer fake.getCredentialsMutex.RUnlock()
+	fake.getDeploymentMutex.RLock()
+	defer fake.getDeploymentMutex.RUnlock()
 	fake.listCredentialsMutex.RLock()
 	defer fake.listCredentialsMutex.RUnlock()
+	fake.updateDeploymentMutex.RLock()
+	defer fake.updateDeploymentMutex.RUnlock()
 	fake.withHostMutex.RLock()
 	defer fake.withHostMutex.RUnlock()
 	fake.withNameMutex.RLock()

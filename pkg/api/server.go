@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.homedepot.com/cd/cloud-runner/pkg/fiat"
+	"github.homedepot.com/cd/cloud-runner/pkg/gcloud"
 	"github.homedepot.com/cd/cloud-runner/pkg/middleware"
 	"github.homedepot.com/cd/cloud-runner/pkg/snowql"
 	"github.homedepot.com/cd/cloud-runner/pkg/sql"
@@ -18,6 +19,7 @@ var (
 // Server hold the gin engine and any clients we need for the API.
 type Server struct {
 	e                 *gin.Engine
+	builder           gcloud.CloudRunCommandBuilder
 	fiatClient        fiat.Client
 	snowQLClient      snowql.Client
 	sqlClient         sql.Client
@@ -27,6 +29,11 @@ type Server struct {
 // NewServer returns a new instance of Server.
 func NewServer() Server {
 	return Server{}
+}
+
+// WithBuilder sets the gcloud command builder.
+func (s *Server) WithBuilder(b gcloud.CloudRunCommandBuilder) {
+	s.builder = b
 }
 
 // WithEngine sets the gin engine instance for the server.
@@ -60,6 +67,7 @@ func (s *Server) Setup() error {
 		return errEngineNotDefined
 	}
 
+	s.e.Use(middleware.SetBuilder(s.builder))
 	s.e.Use(middleware.SetFiatClient(s.fiatClient))
 	s.e.Use(middleware.SetSnowQLClient(s.snowQLClient))
 	s.e.Use(middleware.SetSQLClient(s.sqlClient))

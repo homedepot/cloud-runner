@@ -13,7 +13,7 @@ var (
 func initialize(r *gin.Engine) {
 	{
 		api := r.Group("")
-		api.GET("/healthz", OK)
+		api.GET("/healthz", ok)
 	}
 
 	{
@@ -22,10 +22,13 @@ func initialize(r *gin.Engine) {
 		api.DELETE("/credentials/:account", middleware.RequireAPIKey(apiKey), v1.DeleteCredentials)
 		api.GET("/credentials/:account", v1.GetCredentials)
 		api.GET("/credentials", v1.ListCredentials)
+
+		api.POST("/deployments", middleware.RequireAPIKey(apiKey), v1.CreateDeployment)
+		api.GET("/deployments/:deploymentID", v1.GetDeployment)
 	}
 }
 
-func OK(*gin.Context) {}
+func ok(*gin.Context) {}
 
 // WithKey sets the API key required for create and delete operations.
 func WithKey(a string) {

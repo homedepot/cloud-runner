@@ -9,6 +9,7 @@ import (
 	ginprometheus "github.com/mcuadros/go-gin-prometheus"
 	"github.homedepot.com/cd/cloud-runner/pkg/api"
 	"github.homedepot.com/cd/cloud-runner/pkg/fiat"
+	"github.homedepot.com/cd/cloud-runner/pkg/gcloud"
 	"github.homedepot.com/cd/cloud-runner/pkg/snowql"
 	"github.homedepot.com/cd/cloud-runner/pkg/sql"
 	"github.homedepot.com/cd/cloud-runner/pkg/thd"
@@ -75,6 +76,7 @@ func main() {
 	// Setup the server.
 	server := api.NewServer()
 	server.WithEngine(r)
+	server.WithBuilder(gcloud.NewCloudRunCommandBuilder())
 	server.WithFiatClient(fiatClient)
 	server.WithSnowQLClient(snowQLClient)
 	server.WithSQLClient(sqlClient)

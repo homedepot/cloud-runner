@@ -3,6 +3,7 @@ package sql_test
 import (
 	"database/sql"
 	"errors"
+	"time"
 
 	cloudrunner "github.homedepot.com/cd/cloud-runner/pkg"
 	. "github.homedepot.com/cd/cloud-runner/pkg/sql"
@@ -27,7 +28,7 @@ var _ = Describe("Sql", func() {
 		c = NewClient()
 		err = c.Connect("sqlite3", d)
 		// Enable DB logging.
-		// db.LogMode(true)
+		// c.DB().LogMode(true)
 	})
 
 	AfterEach(func() {
@@ -98,6 +99,44 @@ var _ = Describe("Sql", func() {
 					`"lifecycle",` +
 					`"project_id"` +
 					`\) VALUES \(\?,\?,\?\)$`).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			})
+
+			It("succeeds", func() {
+				Expect(err).To(BeNil())
+			})
+		})
+	})
+
+	Describe("#CreateDeployment", func() {
+		var deployment cloudrunner.Deployment
+
+		BeforeEach(func() {
+			t := cloudrunner.CurrentTimeUTC()
+			deployment = cloudrunner.Deployment{
+				EndTime:   &t,
+				ID:        "test-id",
+				StartTime: &t,
+				Status:    "RUNNING",
+				Output:    "test-output",
+			}
+		})
+
+		JustBeforeEach(func() {
+			err = c.CreateDeployment(deployment)
+		})
+
+		When("it creates the deployment", func() {
+			BeforeEach(func() {
+				mock.ExpectBegin()
+				mock.ExpectExec(`(?i)^INSERT INTO "deployments" \(` +
+					`"end_time",` +
+					`"id",` +
+					`"start_time",` +
+					`"status",` +
+					`"output"` +
+					`\) VALUES \(\?,\?,\?,\?,\?\)$`).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			})
@@ -373,6 +412,43 @@ var _ = Describe("Sql", func() {
 		})
 	})
 
+	Describe("#GetDeployment", func() {
+		var deployment cloudrunner.Deployment
+		var id string
+		var t time.Time
+
+		BeforeEach(func() {
+			id = "e22a8932-7b2a-472d-8858-4690c2e5bf5c"
+			t = cloudrunner.CurrentTimeUTC()
+		})
+
+		JustBeforeEach(func() {
+			deployment, err = c.GetDeployment(id)
+		})
+
+		When("it gets the deployment", func() {
+			BeforeEach(func() {
+				sqlRows := sqlmock.NewRows([]string{"end_time", "id", "start_time", "status", "output"}).
+					AddRow(t, id, t, "RUNNING", "test-output")
+				mock.ExpectQuery(`(?i)^SELECT ` +
+					`\* ` +
+					`FROM "deployments" ` +
+					`WHERE \(id = \?\)$`).
+					WillReturnRows(sqlRows)
+				mock.ExpectCommit()
+			})
+
+			It("succeeds", func() {
+				Expect(err).To(BeNil())
+				Expect(*deployment.EndTime).To(BeTemporally("~", t, time.Second))
+				Expect(deployment.ID).To(Equal(id))
+				Expect(*deployment.StartTime).To(BeTemporally("~", t, time.Second))
+				Expect(deployment.Status).To(Equal("RUNNING"))
+				Expect(deployment.Output).To(Equal("test-output"))
+			})
+		})
+	})
+
 	Describe("#ListCredentials", func() {
 		var credentials []cloudrunner.Credentials
 
@@ -440,6 +516,43 @@ var _ = Describe("Sql", func() {
 				Expect(credentials[0].WriteGroups).To(HaveLen(1))
 				Expect(credentials[1].ReadGroups).To(HaveLen(1))
 				Expect(credentials[1].WriteGroups).To(HaveLen(2))
+			})
+		})
+	})
+
+	Describe("#UpdateDeployment", func() {
+		var deployment cloudrunner.Deployment
+
+		BeforeEach(func() {
+			t := cloudrunner.CurrentTimeUTC()
+			deployment = cloudrunner.Deployment{
+				StartTime: &t,
+				EndTime:   &t,
+				ID:        "test-id",
+				Status:    "SUCCEEDED",
+				Output:    "test-output",
+			}
+		})
+
+		JustBeforeEach(func() {
+			err = c.UpdateDeployment(deployment)
+		})
+
+		When("it updates the deployment", func() {
+			BeforeEach(func() {
+				mock.ExpectBegin()
+				mock.ExpectExec(`(?i)^UPDATE "deployments" SET ` +
+					`"end_time" = \?, ` +
+					`"start_time" = \?, ` +
+					`"status" = \?, ` +
+					`"output" = \? ` +
+					`WHERE "deployments"."id" = \?$`).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			})
+
+			It("succeeds", func() {
+				Expect(err).To(BeNil())
 			})
 		})
 	})

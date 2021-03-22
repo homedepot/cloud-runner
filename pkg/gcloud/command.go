@@ -5,9 +5,13 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
+	BuilderInstanceKey = `CloudRunCommandBuilder`
+
 	defaultBase = `gcloud run deploy`
 	// Flags.
 	flagAllowUnauthenticated   = `--allow-unauthenticated`
@@ -26,7 +30,6 @@ const (
 	// It must start with a letter, and cannot have a trailing hyphen.
 	// See https://cloud.google.com/resource-manager/docs/creating-managing-projects#before_you_begin
 	regexLowerCaseAlphanumericMax30CharsMin6Chars = `^[a-z]([a-z0-9-]{4,28})?[a-z0-9]$`
-	regexNoSingleQuotes                           = `^[^']+$`
 )
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . CloudRunCommandBuilder
@@ -89,9 +92,19 @@ func (c *cloudRunCommandBuilder) Build() (CloudRunCommand, error) {
 	// Set the --project flag
 	command = appendString(command, flagProject)
 	command = appendString(command, c.projectID)
-	// Set the --image '' flag.
+	// Set the --image flag.
+	// I originally wanted to wrap this in single quotes to avoid shell injection, but it kept throwing the error:
+	//
+	// Expected a Container Registry image path like [region.]gcr.io/repo-path[:tag or @digest]
+	// or an Artifact Registry image path like [region-]docker.pkg.dev/repo-path[:tag or @digest],
+	// but obtained 'gcr.io/github-replication-sandbox/rf:1.0.9'
+	//
+	// While the command runs fine directly in the shell, Go is definitely doing something to make these
+	// arguments safe to not require wrapping (I attempted to shell inject and it failed).
+	//
+	// For further reading see https://docs.guardrails.io/docs/en/vulnerabilities/go/insecure_use_of_dangerous_function
 	command = appendString(command, flagImage)
-	command = appendWrappedString(command, c.image)
+	command = appendString(command, c.image)
 	// Set the --platform managed flag.
 	command = appendString(command, flagPlatform)
 	command = appendString(command, "managed")
@@ -114,24 +127,14 @@ func (c *cloudRunCommandBuilder) Build() (CloudRunCommand, error) {
 	if c.memory != "" {
 		// Memory is validated server-side in GCP.
 		// Invalid memory will throw the error 'ERROR: (gcloud.run.deploy) Could not parse Quantity: <MEMORY>'
-		err = validate(regexNoSingleQuotes, c.memory)
-		if err != nil {
-			return nil, fmt.Errorf("error validating memory: %w", err)
-		}
-
 		command = appendString(command, flagMemory)
-		command = appendWrappedString(command, c.memory)
+		command = appendString(command, c.memory)
 	}
 
 	if c.vpcConnector != "" {
 		// VPC connector is validated server-side in GCP.
-		err = validate(regexNoSingleQuotes, c.vpcConnector)
-		if err != nil {
-			return nil, fmt.Errorf("error validating VPC connector: %w", err)
-		}
-
 		command = appendString(command, flagVPCConnector)
-		command = appendWrappedString(command, c.vpcConnector)
+		command = appendString(command, c.vpcConnector)
 	}
 
 	cmdSlice := strings.Split(command, " ")
@@ -141,12 +144,7 @@ func (c *cloudRunCommandBuilder) Build() (CloudRunCommand, error) {
 }
 
 func (c *cloudRunCommandBuilder) validateRequiredFlags() error {
-	err := validate(regexNoSingleQuotes, c.image)
-	if err != nil {
-		return fmt.Errorf("error validating image: %w", err)
-	}
-
-	err = validate(regexLowerCaseAlphanumericMax30CharsMin6Chars, c.projectID)
+	err := validate(regexLowerCaseAlphanumericMax30CharsMin6Chars, c.projectID)
 	if err != nil {
 		return fmt.Errorf("error validating project ID: %w", err)
 	}
@@ -175,10 +173,6 @@ func validate(regex, s string) error {
 
 func appendString(command, s string) string {
 	return fmt.Sprintf("%s %s", command, s)
-}
-
-func appendWrappedString(command, s string) string {
-	return fmt.Sprintf("%s '%s'", command, s)
 }
 
 func appendInt(command string, i int) string {
@@ -249,4 +243,9 @@ func (c *cloudRunCommandBuilder) VPCConnector(vpcConnector string) CloudRunComma
 	c.vpcConnector = vpcConnector
 
 	return c
+}
+
+// Instance returns the builder instance attached to the gin context.
+func Instance(c *gin.Context) CloudRunCommandBuilder {
+	return c.MustGet(BuilderInstanceKey).(CloudRunCommandBuilder)
 }

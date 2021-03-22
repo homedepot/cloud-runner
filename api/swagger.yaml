@@ -33,7 +33,7 @@ paths:
         description: "Object that describes Cloud Run deployment"
         required: true
         schema:
-          $ref: "#/definitions/Deployment"
+          $ref: "#/definitions/DeploymentDescription"
       - in: "header"
         name: "apiKey"
         description: "API Key required for create operations"
@@ -83,7 +83,7 @@ paths:
         "200":
           description: "Successful operation"
           schema:
-            $ref: "#/definitions/DeploymentStatus"
+            $ref: "#/definitions/Deployment"
         "400":
           description: "Invalid ID supplied"
           schema:
@@ -266,7 +266,7 @@ definitions:
         items:
           type: "string"
           example: "gg_my_group"
-  Deployment:
+  DeploymentDescription:
     type: "object"
     required:
     - account
@@ -302,7 +302,7 @@ definitions:
       vpcConnector:
         type: "string"
         example: "my-vpc-connector"
-  DeploymentStatus:
+  Deployment:
     type: "object"
     properties:
       endTime:
@@ -332,4 +332,5 @@ definitions:
       import:
         package: time
         alias: time
+
 
