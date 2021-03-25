@@ -129,6 +129,7 @@ func (c *client) Token() (string, error) {
 	}
 
 	cachedToken = t.AccessToken
+	// Set expiration to 90% of expires in time.
 	expiration = time.Now().In(time.UTC).Add(time.Second * time.Duration((t.ExpiresIn/10)*9))
 
 	return cachedToken, nil
