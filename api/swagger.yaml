@@ -122,9 +122,12 @@ paths:
         "200":
           description: "List of credentials"
           schema:
-            type: "array"
-            items:
-              $ref: "#/definitions/Credentials"
+            type: "object"
+            properties:
+              credentials:
+                type: "array"
+                items:
+                  $ref: "#/definitions/Credentials"
         "401":
           description: "Unauthorized"
           schema:
@@ -332,5 +335,3 @@ definitions:
       import:
         package: time
         alias: time
-
-
