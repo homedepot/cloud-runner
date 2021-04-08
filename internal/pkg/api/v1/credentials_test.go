@@ -20,6 +20,7 @@ var _ = Describe("Credentials", func() {
 			uri = svr.URL + "/v1/credentials"
 			body.Write([]byte(payloadRequestCredentials))
 			createRequest(http.MethodPost)
+			// This is required for the success case.
 			fakeSQLClient.GetCredentialsReturns(cloudrunner.Credentials{}, sql.ErrCredentialsNotFound)
 		})
 
@@ -109,6 +110,19 @@ var _ = Describe("Credentials", func() {
 			It("returns status internal server error", func() {
 				Expect(res.StatusCode).To(Equal(http.StatusInternalServerError))
 				validateResponse(payloadErrorCreatingWritePermission)
+			})
+		})
+
+		When("the account is not defined", func() {
+			BeforeEach(func() {
+				body = &bytes.Buffer{}
+				body.Write([]byte(`{"projectID": "test-project-id"}`))
+				createRequest(http.MethodPost)
+			})
+
+			It("generates the account name", func() {
+				Expect(res.StatusCode).To(Equal(http.StatusCreated))
+				validateResponse(payloadCredentialsCreatedNoAccountProvided)
 			})
 		})
 
@@ -248,7 +262,7 @@ var _ = Describe("Credentials", func() {
 		When("it gets the credentials", func() {
 			It("returns status OK", func() {
 				Expect(res.StatusCode).To(Equal(http.StatusOK))
-				validateResponse(payloadCredentialsCreated)
+				validateResponse(payloadCredentials)
 			})
 		})
 	})

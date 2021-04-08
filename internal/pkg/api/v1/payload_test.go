@@ -5,6 +5,7 @@ const payloadBadRequest = `{
           }`
 
 const payloadRequestCredentials = `{
+            "account": "test-account",
 						"projectID": "test-project-id",
 						"readGroups": [
 							"gg_test"
@@ -57,8 +58,24 @@ const payloadUnauthorized = `{
             "error": "X-Spinnaker-User header not set"
           }`
 
-const payloadCredentialsCreated = `{
+const payloadCredentials = `{
             "account": "cr-test-project-id",
+            "projectID": "test-project-id",
+            "readGroups": [
+              "gg_test"
+            ],
+            "writeGroups": [
+              "gg_test"
+            ]
+          }`
+
+const payloadCredentialsCreatedNoAccountProvided = `{
+            "account": "cr-test-project-id",
+            "projectID": "test-project-id"
+          }`
+
+const payloadCredentialsCreated = `{
+            "account": "test-account",
             "projectID": "test-project-id",
             "readGroups": [
               "gg_test"

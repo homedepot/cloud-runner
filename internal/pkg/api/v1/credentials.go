@@ -13,8 +13,9 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// CreateCredentials generates a new account name for Cloud Run
-// in the format `cr-<PROJECT_ID>-<LIFECYCLE>` and inserts it into the DB.
+// CreateCredentials creates a new account for Cloud Run.
+// If the account field it not provided it is generated in the format
+// `cr-<PROJECT_ID>`.
 func CreateCredentials(c *gin.Context) {
 	creds := cloudrunner.Credentials{}
 	sqlClient := sql.Instance(c)
@@ -30,7 +31,10 @@ func CreateCredentials(c *gin.Context) {
 		return
 	}
 
-	creds.Account = fmt.Sprintf("cr-%s", creds.ProjectID)
+	// If an account name was not provided, generate one.
+	if creds.Account == "" {
+		creds.Account = fmt.Sprintf("cr-%s", creds.ProjectID)
+	}
 
 	_, err = sqlClient.GetCredentials(creds.Account)
 	if err != gorm.ErrRecordNotFound && err != sql.ErrCredentialsNotFound {
@@ -49,6 +53,9 @@ func CreateCredentials(c *gin.Context) {
 		return
 	}
 
+	// TODO make these calls part of the sql client to create the credentials,
+	// additionally they should be part of a transaction that will be rolled
+	// back if any fail.
 	for _, group := range creds.ReadGroups {
 		rp := cloudrunner.CredentialsReadPermission{
 			ID:        uuid.New().String(),
