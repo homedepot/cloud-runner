@@ -1,2 +1,8 @@
 *.coverprofile
 .idea/
+/main
+/cloud-runner
+build/
+.secrets/
+/test
+cloud-runner.db

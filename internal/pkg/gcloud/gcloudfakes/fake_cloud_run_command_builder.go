@@ -4,7 +4,7 @@ package gcloudfakes
 import (
 	"sync"
 
-	"github.homedepot.com/cd/cloud-runner/pkg/gcloud"
+	"github.com/homedepot/cloud-runner/internal/pkg/gcloud"
 )
 
 type FakeCloudRunCommandBuilder struct {
@@ -86,15 +86,15 @@ type FakeCloudRunCommandBuilder struct {
 	regionReturnsOnCall map[int]struct {
 		result1 gcloud.CloudRunCommandBuilder
 	}
-	ServiceNameStub        func(string) gcloud.CloudRunCommandBuilder
-	serviceNameMutex       sync.RWMutex
-	serviceNameArgsForCall []struct {
+	ServiceStub        func(string) gcloud.CloudRunCommandBuilder
+	serviceMutex       sync.RWMutex
+	serviceArgsForCall []struct {
 		arg1 string
 	}
-	serviceNameReturns struct {
+	serviceReturns struct {
 		result1 gcloud.CloudRunCommandBuilder
 	}
-	serviceNameReturnsOnCall map[int]struct {
+	serviceReturnsOnCall map[int]struct {
 		result1 gcloud.CloudRunCommandBuilder
 	}
 	VPCConnectorStub        func(string) gcloud.CloudRunCommandBuilder
@@ -534,16 +534,16 @@ func (fake *FakeCloudRunCommandBuilder) RegionReturnsOnCall(i int, result1 gclou
 	}{result1}
 }
 
-func (fake *FakeCloudRunCommandBuilder) ServiceName(arg1 string) gcloud.CloudRunCommandBuilder {
-	fake.serviceNameMutex.Lock()
-	ret, specificReturn := fake.serviceNameReturnsOnCall[len(fake.serviceNameArgsForCall)]
-	fake.serviceNameArgsForCall = append(fake.serviceNameArgsForCall, struct {
+func (fake *FakeCloudRunCommandBuilder) Service(arg1 string) gcloud.CloudRunCommandBuilder {
+	fake.serviceMutex.Lock()
+	ret, specificReturn := fake.serviceReturnsOnCall[len(fake.serviceArgsForCall)]
+	fake.serviceArgsForCall = append(fake.serviceArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	stub := fake.ServiceNameStub
-	fakeReturns := fake.serviceNameReturns
-	fake.recordInvocation("ServiceName", []interface{}{arg1})
-	fake.serviceNameMutex.Unlock()
+	stub := fake.ServiceStub
+	fakeReturns := fake.serviceReturns
+	fake.recordInvocation("Service", []interface{}{arg1})
+	fake.serviceMutex.Unlock()
 	if stub != nil {
 		return stub(arg1)
 	}
@@ -553,44 +553,44 @@ func (fake *FakeCloudRunCommandBuilder) ServiceName(arg1 string) gcloud.CloudRun
 	return fakeReturns.result1
 }
 
-func (fake *FakeCloudRunCommandBuilder) ServiceNameCallCount() int {
-	fake.serviceNameMutex.RLock()
-	defer fake.serviceNameMutex.RUnlock()
-	return len(fake.serviceNameArgsForCall)
+func (fake *FakeCloudRunCommandBuilder) ServiceCallCount() int {
+	fake.serviceMutex.RLock()
+	defer fake.serviceMutex.RUnlock()
+	return len(fake.serviceArgsForCall)
 }
 
-func (fake *FakeCloudRunCommandBuilder) ServiceNameCalls(stub func(string) gcloud.CloudRunCommandBuilder) {
-	fake.serviceNameMutex.Lock()
-	defer fake.serviceNameMutex.Unlock()
-	fake.ServiceNameStub = stub
+func (fake *FakeCloudRunCommandBuilder) ServiceCalls(stub func(string) gcloud.CloudRunCommandBuilder) {
+	fake.serviceMutex.Lock()
+	defer fake.serviceMutex.Unlock()
+	fake.ServiceStub = stub
 }
 
-func (fake *FakeCloudRunCommandBuilder) ServiceNameArgsForCall(i int) string {
-	fake.serviceNameMutex.RLock()
-	defer fake.serviceNameMutex.RUnlock()
-	argsForCall := fake.serviceNameArgsForCall[i]
+func (fake *FakeCloudRunCommandBuilder) ServiceArgsForCall(i int) string {
+	fake.serviceMutex.RLock()
+	defer fake.serviceMutex.RUnlock()
+	argsForCall := fake.serviceArgsForCall[i]
 	return argsForCall.arg1
 }
 
-func (fake *FakeCloudRunCommandBuilder) ServiceNameReturns(result1 gcloud.CloudRunCommandBuilder) {
-	fake.serviceNameMutex.Lock()
-	defer fake.serviceNameMutex.Unlock()
-	fake.ServiceNameStub = nil
-	fake.serviceNameReturns = struct {
+func (fake *FakeCloudRunCommandBuilder) ServiceReturns(result1 gcloud.CloudRunCommandBuilder) {
+	fake.serviceMutex.Lock()
+	defer fake.serviceMutex.Unlock()
+	fake.ServiceStub = nil
+	fake.serviceReturns = struct {
 		result1 gcloud.CloudRunCommandBuilder
 	}{result1}
 }
 
-func (fake *FakeCloudRunCommandBuilder) ServiceNameReturnsOnCall(i int, result1 gcloud.CloudRunCommandBuilder) {
-	fake.serviceNameMutex.Lock()
-	defer fake.serviceNameMutex.Unlock()
-	fake.ServiceNameStub = nil
-	if fake.serviceNameReturnsOnCall == nil {
-		fake.serviceNameReturnsOnCall = make(map[int]struct {
+func (fake *FakeCloudRunCommandBuilder) ServiceReturnsOnCall(i int, result1 gcloud.CloudRunCommandBuilder) {
+	fake.serviceMutex.Lock()
+	defer fake.serviceMutex.Unlock()
+	fake.ServiceStub = nil
+	if fake.serviceReturnsOnCall == nil {
+		fake.serviceReturnsOnCall = make(map[int]struct {
 			result1 gcloud.CloudRunCommandBuilder
 		})
 	}
-	fake.serviceNameReturnsOnCall[i] = struct {
+	fake.serviceReturnsOnCall[i] = struct {
 		result1 gcloud.CloudRunCommandBuilder
 	}{result1}
 }
@@ -673,8 +673,8 @@ func (fake *FakeCloudRunCommandBuilder) Invocations() map[string][][]interface{}
 	defer fake.projectIDMutex.RUnlock()
 	fake.regionMutex.RLock()
 	defer fake.regionMutex.RUnlock()
-	fake.serviceNameMutex.RLock()
-	defer fake.serviceNameMutex.RUnlock()
+	fake.serviceMutex.RLock()
+	defer fake.serviceMutex.RUnlock()
 	fake.vPCConnectorMutex.RLock()
 	defer fake.vPCConnectorMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
