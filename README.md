@@ -6,11 +6,6 @@ Cloud Runner is a simple microservice that builds and runs a `gcloud run deploy`
 
 ### Development
 
-#### Build
-```bash
-make build
-```
-
 #### Environment Variables
 | Name | Description | Required | Notes
 |-|-:|-:|-:|
@@ -20,15 +15,25 @@ make build
 | `SQL_PASS` | SQL password | | If not set will default to local sqlite DB |
 | `SQL_USER` | SQL username | | If not set will default to local sqlite DB |
 
+#### Build
+```bash
+make build
+```
+
+#### Test
+```bash
+make test
+```
+
 #### Run Locally
-The following will show you how to run `cloud-runner` locally and onboard your first account!
+The following will show you how to run Cloud Runner locally and onboard your first account! Running locally will by default create a SQLite DB named `cloud-runner.db` in the current directory.
 
 1. Run cloud-runner
 ```bash
 $ export API_KEY=test
 $ make run
 ```
-2. Create an account. Cloud Runner connects to Spinnaker's fiat (at http://spin-fiat.spinnaker:7003) when deploying to verify the current user has read and write access to the account. When onboarding an account into Spinnaker make sure to define the read and write groups correctly!
+2. Create an account. Cloud Runner connects to Spinnaker's fiat (at http://spin-fiat.spinnaker:7003) when deploying to GCP to verify the current user has read and write access to the account. The user is defined in the `X-Spinnaker-User` request header. When onboarding an account into Spinnaker make sure to define the read and write groups correctly!
 ```bash
 $ curl -H "API-Key: test" localhost:80/v1/credentials -d '{
   "projectID": "test-project-id",
