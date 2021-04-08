@@ -249,7 +249,7 @@ definitions:
     properties:
       account:
         type: "string"
-        example: "cr-test-project-id-pr"
+        example: "cr-test-project-id"
       projectID:
         type: "string"
         example: "test-project-id"
@@ -274,7 +274,7 @@ definitions:
     properties:
       account:
         type: "string"
-        example: "cr-test-project-id-pr"
+        example: "cr-test-project-id"
       allowUnauthenticated:
         type: "boolean"
         example: false
