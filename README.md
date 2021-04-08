@@ -20,3 +20,8 @@ make build
 | `SQL_PASS` | SQL password | | If not set will default to local sqlite DB |
 | `SQL_USER` | SQL username | | If not set will default to local sqlite DB |
 
+#### Run Locally
+```bash
+export API_KEY=test
+make run
+```
