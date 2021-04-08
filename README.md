@@ -2,7 +2,7 @@
 
 # cloud-runner
 
-Cloud Runner is a simple microservice that builds and runs a `gcloud run deploy` command against a given project. For flag support please [visit the wiki](https://github.com/homedepot/cloud-runner/wiki).
+Cloud Runner is a simple microservice that builds and runs a `gcloud run deploy` command against a given GCP project ID. For flag support please [visit the wiki](https://github.com/homedepot/cloud-runner/wiki).
 
 ### Development
 
@@ -28,7 +28,7 @@ The following will show you how to run `cloud-runner` locally and onboard your f
 $ export API_KEY=test
 $ make run
 ```
-2. Create an account
+2. Create an account. Cloud Runner connects to Spinnaker's fiat (at http://spin-fiat.spinnaker:7003) when deploying to verify the current user has read and write access to the account. When onboarding an account into Spinnaker make sure to define the read and write groups correctly!
 ```bash
 $ curl -H "API-Key: test" localhost:80/v1/credentials -d '{
   "projectID": "test-project-id",
