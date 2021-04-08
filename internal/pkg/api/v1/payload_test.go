@@ -49,14 +49,6 @@ const payloadErrorCreatingWritePermission = `{
             "error": "error creating write permission"
           }`
 
-const payloadErrorGettingToken = `{
-            "error": "error getting token"
-          }`
-
-const payloadErrorGettingLCP = `{
-            "error": "error getting LCP"
-          }`
-
 const payloadErrorGettingRoles = `{
 						"error": "error getting roles"
 					}`

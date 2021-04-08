@@ -20,7 +20,7 @@ type DeploymentDescription struct {
 //
 // I was a bit confused as to why creating this table was failing in GCP.
 // There are two timestamp columns defined below, and in GCP it is required
-// that timestamp columns MUST have a DEAFULT:CURRENT_TIMESTAMP. It was failing
+// that timestamp columns MUST have a DEFAUL:CURRENT_TIMESTAMP. It was failing
 // to create because StartTime was not defining its default to CURRENT_TIMESTAMP,
 // but was not throwing the same error for EndTime.
 //
