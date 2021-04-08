@@ -33,9 +33,10 @@ The following will show you how to run Cloud Runner locally and onboard your fir
 $ export API_KEY=test
 $ make run
 ```
-2. Create an account. Cloud Runner connects to Spinnaker's fiat (at http://spin-fiat.spinnaker:7003) when deploying to GCP to verify the current user has read and write access to the account. The user is defined in the `X-Spinnaker-User` request header. When onboarding an account into Spinnaker make sure to define the read and write groups correctly!
+2. Create an account. Cloud Runner connects to Spinnaker's fiat (at http://spin-fiat.spinnaker:7003) when deploying to GCP to verify the current user has read and write access to the account. The user is defined in the `X-Spinnaker-User` request header. When onboarding an account into Spinnaker make sure to define the read and write groups correctly! If no account field is provided one will be generated in the format `cr-<GCP_PROJECT_ID>`.
 ```bash
 $ curl -H "API-Key: test" localhost:80/v1/credentials -d '{
+  "account": "test-account-name",
   "projectID": "test-project-id",
   "readGroups": [
     "test-group"
@@ -48,7 +49,7 @@ $ curl -H "API-Key: test" localhost:80/v1/credentials -d '{
 You should see the response
 ```json
 {
-  "account": "cr-test-project-id",
+  "account": "test-account-name",
   "projectID": "test-project-id",
   "readGroups": [
     "test-group"
@@ -67,10 +68,10 @@ You should see the response
 {
   "credentials": [
     {
-      "account": "cr-test-project-id",
+      "account": "test-account-name",
       "projectID": "test-project-id",
       "readGroups": [
-        "test-read-group"
+        "test-group"
       ],
       "writeGroups": [
         "test-group"
