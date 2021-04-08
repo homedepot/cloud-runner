@@ -250,9 +250,6 @@ definitions:
       account:
         type: "string"
         example: "cr-test-project-id-pr"
-      lifecycle:
-        type: "string"
-        example: "pr"
       projectID:
         type: "string"
         example: "test-project-id"
