@@ -41,7 +41,7 @@ func (s *Server) WithSQLClient(sc sql.Client) {
 	s.sqlClient = sc
 }
 
-// Setup sets any global middlewares then initalizes the API.
+// Setup sets any global middlewares then initializes the API.
 func (s *Server) Setup() {
 	s.e.Use(middleware.SetBuilder(s.builder))
 	s.e.Use(middleware.SetFiatClient(s.fiatClient))
