@@ -11,12 +11,12 @@ Cloud Runner is a simple microservice that builds and runs a `gcloud run deploy`
 make build
 ```
 
-#### Required Environment Variables
-| Name | Description |
-|-|-:|
-| `API_KEY` | Validated for Create/Delete operations |
-| `SQL_HOST` | SQL host |
-| `SQL_NAME` | SQL database name |
-| `SQL_PASS` | SQL password |
-| `SQL_USER` | SQL username |
+#### Environment Variables
+| Name | Description | Required | Notes
+|-|-:|-:|-:|
+| `API_KEY` | Validated for Create/Delete operations | ✔️  | |
+| `SQL_HOST` | SQL host | | If not set will default to local sqlite DB |
+| `SQL_NAME` | SQL database name | | If not set will default to local sqlite DB |
+| `SQL_PASS` | SQL password | | If not set will default to local sqlite DB |
+| `SQL_USER` | SQL username | | If not set will default to local sqlite DB |
 
