@@ -21,7 +21,57 @@ make build
 | `SQL_USER` | SQL username | | If not set will default to local sqlite DB |
 
 #### Run Locally
+The following will show you how to run `cloud-runner` locally and onboard your first account!
+
+1. Run cloud-runner
 ```bash
-export API_KEY=test
-make run
+$ export API_KEY=test
+$ make run
 ```
+2. Create an account
+```bash
+$ curl -H "API-Key: test" localhost:80/v1/credentials -d '{
+  "projectID": "test-project-id",
+  "readGroups": [
+    "test-group"
+  ],
+  "writeGroups": [
+    "test-group"
+  ]
+}' | jq
+```
+You should see the response
+```json
+{
+  "account": "cr-test-project-id",
+  "projectID": "test-project-id",
+  "readGroups": [
+    "test-group"
+  ],
+  "writeGroups": [
+    "test-group"
+  ]
+}
+```
+3. List credentials
+```
+$ curl localhost:80/v1/credentials | jq
+```
+You should see the response
+```json
+{
+  "credentials": [
+    {
+      "account": "cr-test-project-id",
+      "projectID": "test-project-id",
+      "readGroups": [
+        "test-read-group"
+      ],
+      "writeGroups": [
+        "test-group"
+      ]
+    }
+  ]
+}
+```
+To generate CURL commands to create and monitor a deployment, reference the swagger YAML at `api/swagger.yaml`.
