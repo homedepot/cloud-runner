@@ -22,5 +22,6 @@ make build
 
 #### Run Locally
 ```bash
+export API_KEY=test
 make run
 ```
