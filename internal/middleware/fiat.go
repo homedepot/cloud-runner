@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/homedepot/cloud-runner/internal/pkg/fiat"
+	"github.com/homedepot/cloud-runner/internal/fiat"
 )
 
 // SetFiatClient attaches a fiat.Client to the gin context.

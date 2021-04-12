@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/homedepot/cloud-runner/internal/pkg/fiat"
-	"github.com/homedepot/cloud-runner/internal/pkg/sql"
+	"github.com/homedepot/cloud-runner/internal/fiat"
+	"github.com/homedepot/cloud-runner/internal/sql"
 	cloudrunner "github.com/homedepot/cloud-runner/pkg"
 	"github.com/jinzhu/gorm"
 	. "github.com/onsi/ginkgo"

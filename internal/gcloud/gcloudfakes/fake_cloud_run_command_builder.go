@@ -4,7 +4,7 @@ package gcloudfakes
 import (
 	"sync"
 
-	"github.com/homedepot/cloud-runner/internal/pkg/gcloud"
+	"github.com/homedepot/cloud-runner/internal/gcloud"
 )
 
 type FakeCloudRunCommandBuilder struct {

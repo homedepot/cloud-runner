@@ -4,7 +4,7 @@ package sqlfakes
 import (
 	"sync"
 
-	"github.com/homedepot/cloud-runner/internal/pkg/sql"
+	"github.com/homedepot/cloud-runner/internal/sql"
 	cloudrunner "github.com/homedepot/cloud-runner/pkg"
 	"github.com/jinzhu/gorm"
 	_ "github.com/mattn/go-sqlite3"

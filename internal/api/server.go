@@ -2,10 +2,10 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/homedepot/cloud-runner/internal/pkg/fiat"
-	"github.com/homedepot/cloud-runner/internal/pkg/gcloud"
-	"github.com/homedepot/cloud-runner/internal/pkg/middleware"
-	"github.com/homedepot/cloud-runner/internal/pkg/sql"
+	"github.com/homedepot/cloud-runner/internal/fiat"
+	"github.com/homedepot/cloud-runner/internal/gcloud"
+	"github.com/homedepot/cloud-runner/internal/middleware"
+	"github.com/homedepot/cloud-runner/internal/sql"
 )
 
 // Server hold the gin engine and any clients we need for the API.

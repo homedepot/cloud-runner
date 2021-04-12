@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/homedepot/cloud-runner/internal/pkg/gcloud"
+	"github.com/homedepot/cloud-runner/internal/gcloud"
 )
 
 // SetBuilder attaches a gcloud.CloudRunCommandBuilder to the gin context.
