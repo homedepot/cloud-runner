@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/homedepot/cloud-runner/internal/pkg/sql"
+	"github.com/homedepot/cloud-runner/internal/sql"
 )
 
 // SetSQLClient attaches a sql.Client to the gin context.

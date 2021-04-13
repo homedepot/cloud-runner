@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/homedepot/cloud-runner/internal/pkg/fiat"
-	"github.com/homedepot/cloud-runner/internal/pkg/sql"
+	"github.com/homedepot/cloud-runner/internal/fiat"
+	"github.com/homedepot/cloud-runner/internal/sql"
 	cloudrunner "github.com/homedepot/cloud-runner/pkg"
 	"github.com/jinzhu/gorm"
 )

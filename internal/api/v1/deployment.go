@@ -7,10 +7,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	internal "github.com/homedepot/cloud-runner/internal/pkg"
-	"github.com/homedepot/cloud-runner/internal/pkg/fiat"
-	"github.com/homedepot/cloud-runner/internal/pkg/gcloud"
-	"github.com/homedepot/cloud-runner/internal/pkg/sql"
+	internal "github.com/homedepot/cloud-runner/internal"
+	"github.com/homedepot/cloud-runner/internal/fiat"
+	"github.com/homedepot/cloud-runner/internal/gcloud"
+	"github.com/homedepot/cloud-runner/internal/sql"
 	cloudrunner "github.com/homedepot/cloud-runner/pkg"
 	"github.com/jinzhu/gorm"
 )

@@ -9,12 +9,12 @@ import (
 	"net/http/httptest"
 
 	"github.com/gin-gonic/gin"
-	internal "github.com/homedepot/cloud-runner/internal/pkg"
-	"github.com/homedepot/cloud-runner/internal/pkg/api"
-	"github.com/homedepot/cloud-runner/internal/pkg/fiat"
-	"github.com/homedepot/cloud-runner/internal/pkg/fiat/fiatfakes"
-	"github.com/homedepot/cloud-runner/internal/pkg/gcloud/gcloudfakes"
-	"github.com/homedepot/cloud-runner/internal/pkg/sql/sqlfakes"
+	internal "github.com/homedepot/cloud-runner/internal"
+	"github.com/homedepot/cloud-runner/internal/api"
+	"github.com/homedepot/cloud-runner/internal/fiat"
+	"github.com/homedepot/cloud-runner/internal/fiat/fiatfakes"
+	"github.com/homedepot/cloud-runner/internal/gcloud/gcloudfakes"
+	"github.com/homedepot/cloud-runner/internal/sql/sqlfakes"
 	cloudrunner "github.com/homedepot/cloud-runner/pkg"
 
 	// . "github.com/onsi/ginkgo"

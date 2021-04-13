@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/homedepot/cloud-runner/internal/pkg/api"
-	"github.com/homedepot/cloud-runner/internal/pkg/fiat"
-	"github.com/homedepot/cloud-runner/internal/pkg/gcloud"
-	"github.com/homedepot/cloud-runner/internal/pkg/sql"
+	"github.com/homedepot/cloud-runner/internal/api"
+	"github.com/homedepot/cloud-runner/internal/fiat"
+	"github.com/homedepot/cloud-runner/internal/gcloud"
+	"github.com/homedepot/cloud-runner/internal/sql"
 	ginprometheus "github.com/mcuadros/go-gin-prometheus"
 )
 

@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	v1 "github.com/homedepot/cloud-runner/internal/pkg/api/v1"
-	"github.com/homedepot/cloud-runner/internal/pkg/middleware"
+	v1 "github.com/homedepot/cloud-runner/internal/api/v1"
+	"github.com/homedepot/cloud-runner/internal/middleware"
 )
 
 var (

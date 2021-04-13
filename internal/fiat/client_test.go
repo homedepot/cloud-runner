@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
-	. "github.com/homedepot/cloud-runner/internal/pkg/fiat"
+	. "github.com/homedepot/cloud-runner/internal/fiat"
 )
 
 var _ = Describe("Client", func() {

@@ -3,7 +3,7 @@ package gcloud_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/homedepot/cloud-runner/internal/pkg/gcloud"
+	. "github.com/homedepot/cloud-runner/internal/gcloud"
 )
 
 var _ = Describe("Command", func() {

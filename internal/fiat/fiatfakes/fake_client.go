@@ -4,7 +4,7 @@ package fiatfakes
 import (
 	"sync"
 
-	"github.com/homedepot/cloud-runner/internal/pkg/fiat"
+	"github.com/homedepot/cloud-runner/internal/fiat"
 )
 
 type FakeClient struct {
