@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"regexp"
-	"strings"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -80,7 +80,7 @@ func NewCloudRunCommandBuilder() CloudRunCommandBuilder {
 
 // Build builds, validates, and sets the command.
 func (c *cloudRunCommandBuilder) Build() (CloudRunCommand, error) {
-	command := c.base
+	command := []string{c.base}
 
 	err := c.validateRequiredFlags()
 	if err != nil {
@@ -88,10 +88,10 @@ func (c *cloudRunCommandBuilder) Build() (CloudRunCommand, error) {
 	}
 
 	// Set the service name.
-	command = appendString(command, c.service)
+	command = append(command, c.service)
 	// Set the --project flag
-	command = appendString(command, flagProject)
-	command = appendString(command, c.projectID)
+	command = append(command, flagProject)
+	command = append(command, c.projectID)
 	// Set the --image flag.
 	// I originally wanted to wrap this in single quotes to avoid shell injection, but it kept throwing the error:
 	//
@@ -103,42 +103,41 @@ func (c *cloudRunCommandBuilder) Build() (CloudRunCommand, error) {
 	// arguments safe to not require wrapping (I attempted to shell inject and it failed).
 	//
 	// For further reading see https://docs.guardrails.io/docs/en/vulnerabilities/go/insecure_use_of_dangerous_function
-	command = appendString(command, flagImage)
-	command = appendString(command, c.image)
+	command = append(command, flagImage)
+	command = append(command, c.image)
 	// Set the --platform managed flag.
-	command = appendString(command, flagPlatform)
-	command = appendString(command, "managed")
+	command = append(command, flagPlatform)
+	command = append(command, "managed")
 	// Set the --region flag.
-	command = appendString(command, flagRegion)
-	command = appendString(command, c.region)
+	command = append(command, flagRegion)
+	command = append(command, c.region)
 
 	if c.allowUnauthenticated {
-		command = appendString(command, flagAllowUnauthenticated)
+		command = append(command, flagAllowUnauthenticated)
 	} else {
-		command = appendString(command, flagNoAllowUnauthenticated)
+		command = append(command, flagNoAllowUnauthenticated)
 	}
 
 	// Optional flags.
 	if c.maxInstances > 0 {
-		command = appendString(command, flagMaxInstances)
-		command = appendInt(command, c.maxInstances)
+		command = append(command, flagMaxInstances)
+		command = append(command, strconv.Itoa(c.maxInstances))
 	}
 
 	if c.memory != "" {
 		// Memory is validated server-side in GCP.
 		// Invalid memory will throw the error 'ERROR: (gcloud.run.deploy) Could not parse Quantity: <MEMORY>'
-		command = appendString(command, flagMemory)
-		command = appendString(command, c.memory)
+		command = append(command, flagMemory)
+		command = append(command, c.memory)
 	}
 
 	if c.vpcConnector != "" {
 		// VPC connector is validated server-side in GCP.
-		command = appendString(command, flagVPCConnector)
-		command = appendString(command, c.vpcConnector)
+		command = append(command, flagVPCConnector)
+		command = append(command, c.vpcConnector)
 	}
 
-	cmdSlice := strings.Split(command, " ")
-	cmd := exec.Command(cmdSlice[0], cmdSlice[1:]...)
+	cmd := exec.Command(command[0], command[1:]...)
 
 	return &cloudRunCommand{cmd: cmd}, nil
 }
@@ -169,14 +168,6 @@ func validate(regex, s string) error {
 	}
 
 	return nil
-}
-
-func appendString(command, s string) string {
-	return fmt.Sprintf("%s %s", command, s)
-}
-
-func appendInt(command string, i int) string {
-	return fmt.Sprintf("%s %d", command, i)
 }
 
 // String returns the underlying command.
