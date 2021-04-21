@@ -61,7 +61,7 @@ func (s *Server) WithTHDIdentityClient(tc thd.IdentityClient) {
 	s.thdIdentityClient = tc
 }
 
-// Setup sets any global middlewares then initalizes the API.
+// Setup sets any global middlewares then initializes the API.
 func (s *Server) Setup() error {
 	if s.e == nil {
 		return errEngineNotDefined

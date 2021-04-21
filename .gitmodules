@@ -1,3 +1,6 @@
 [submodule "ci/scripts"]
 	path = ci/scripts
 	url = git@github.homedepot.com:cd/ci-scripts.git
+[submodule "cd"]
+	path = cd
+	url = git@github.homedepot.com:cd/cd.git
