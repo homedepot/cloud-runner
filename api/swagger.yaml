@@ -35,7 +35,7 @@ paths:
         schema:
           $ref: "#/definitions/DeploymentDescription"
       - in: "header"
-        name: "apiKey"
+        name: "API-Key"
         description: "API Key required for create operations"
         type: "string"
         required: true
@@ -156,7 +156,7 @@ paths:
         schema:
           $ref: "#/definitions/Credentials"
       - in: "header"
-        name: "apiKey"
+        name: "API-Key"
         description: "API Key required for create operations"
         type: "string"
         required: true
