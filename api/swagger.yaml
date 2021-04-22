@@ -35,10 +35,15 @@ paths:
         schema:
           $ref: "#/definitions/DeploymentDescription"
       - in: "header"
-        name: "apiKey"
+        name: "API-Key"
         description: "API Key required for create operations"
         type: "string"
         required: true
+      - name: "X-Spinnaker-User"
+        in: "header"
+        description: "The user making the request"
+        required: true
+        type: "string"
       responses:
         "201":
           description: "Deployment created"
@@ -151,7 +156,7 @@ paths:
         schema:
           $ref: "#/definitions/Credentials"
       - in: "header"
-        name: "apiKey"
+        name: "API-Key"
         description: "API Key required for create operations"
         type: "string"
         required: true
@@ -329,5 +334,3 @@ definitions:
       import:
         package: time
         alias: time
-
-
