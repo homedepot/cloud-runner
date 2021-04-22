@@ -39,6 +39,11 @@ paths:
         description: "API Key required for create operations"
         type: "string"
         required: true
+      - name: "X-Spinnaker-User"
+        in: "header"
+        description: "The user making the request"
+        required: true
+        type: "string"
       responses:
         "201":
           description: "Deployment created"
@@ -329,5 +334,3 @@ definitions:
       import:
         package: time
         alias: time
-
-
