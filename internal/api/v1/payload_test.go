@@ -31,7 +31,7 @@ const payloadConflictRequest = `{
           }`
 
 const payloadProjectIDRequired = `{
-            "error": "project ID required"
+            "error": "Key: 'Credentials.ProjectID' Error:Field validation for 'ProjectID' failed on the 'required' tag"
           }`
 
 const payloadGenericError = `{
