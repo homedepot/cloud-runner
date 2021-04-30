@@ -25,12 +25,6 @@ func CreateCredentials(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	if creds.ProjectID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "project ID required"})
-		return
-	}
-
 	// If an account name was not provided, generate one.
 	if creds.Account == "" {
 		creds.Account = fmt.Sprintf("cr-%s", creds.ProjectID)
