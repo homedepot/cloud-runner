@@ -2,8 +2,7 @@ package cloudrunner
 
 type Credentials struct {
 	Account     string   `json:"account" gorm:"primary_key"`
-	Lifecycle   string   `json:"lifecycle"`
-	ProjectID   string   `json:"projectID"`
-	ReadGroups  []string `json:"readGroups" gorm:"-"`
-	WriteGroups []string `json:"writeGroups" gorm:"-"`
+	ProjectID   string   `json:"projectID" binding:"required"`
+	ReadGroups  []string `json:"readGroups,omitempty" gorm:"-"`
+	WriteGroups []string `json:"writeGroups,omitempty" gorm:"-"`
 }

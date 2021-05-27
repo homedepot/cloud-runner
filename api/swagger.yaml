@@ -35,10 +35,15 @@ paths:
         schema:
           $ref: "#/definitions/DeploymentDescription"
       - in: "header"
-        name: "apiKey"
+        name: "API-Key"
         description: "API Key required for create operations"
         type: "string"
         required: true
+      - name: "X-Spinnaker-User"
+        in: "header"
+        description: "The user making the request"
+        required: true
+        type: "string"
       responses:
         "201":
           description: "Deployment created"
@@ -122,12 +127,9 @@ paths:
         "200":
           description: "List of credentials"
           schema:
-            type: "object"
-            properties:
-              credentials:
-                type: "array"
-                items:
-                  $ref: "#/definitions/Credentials"
+            type: "array"
+            items:
+              $ref: "#/definitions/Credentials"
         "401":
           description: "Unauthorized"
           schema:
@@ -154,7 +156,7 @@ paths:
         schema:
           $ref: "#/definitions/Credentials"
       - in: "header"
-        name: "apiKey"
+        name: "API-Key"
         description: "API Key required for create operations"
         type: "string"
         required: true
@@ -252,10 +254,7 @@ definitions:
     properties:
       account:
         type: "string"
-        example: "cr-test-project-id-pr"
-      lifecycle:
-        type: "string"
-        example: "pr"
+        example: "cr-test-project-id"
       projectID:
         type: "string"
         example: "test-project-id"
@@ -280,7 +279,7 @@ definitions:
     properties:
       account:
         type: "string"
-        example: "cr-test-project-id-pr"
+        example: "cr-test-project-id"
       allowUnauthenticated:
         type: "boolean"
         example: false
