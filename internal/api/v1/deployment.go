@@ -7,12 +7,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
 	internal "github.homedepot.com/cd/cloud-runner/internal"
 	"github.homedepot.com/cd/cloud-runner/internal/fiat"
 	"github.homedepot.com/cd/cloud-runner/internal/gcloud"
 	"github.homedepot.com/cd/cloud-runner/internal/sql"
 	cloudrunner "github.homedepot.com/cd/cloud-runner/pkg"
-	"github.com/jinzhu/gorm"
 )
 
 var (
