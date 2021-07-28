@@ -6,11 +6,11 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	ginprometheus "github.com/mcuadros/go-gin-prometheus"
 	"github.com/homedepot/cloud-runner/internal/api"
 	"github.com/homedepot/cloud-runner/internal/fiat"
 	"github.com/homedepot/cloud-runner/internal/gcloud"
 	"github.com/homedepot/cloud-runner/internal/sql"
-	ginprometheus "github.com/mcuadros/go-gin-prometheus"
 )
 
 const (
@@ -28,9 +28,6 @@ func main() {
 	r := gin.New()
 	// Make the logs use color.
 	gin.ForceConsoleColor()
-
-	// Set the API key for create/delete operations.
-	api.WithKey(os.Getenv("API_KEY"))
 
 	// Setup metrics.
 	p := ginprometheus.NewPrometheus("cloud_runner")
@@ -62,6 +59,7 @@ func main() {
 
 	// Setup the server.
 	server := api.NewServer()
+	server.WithAPIKey(os.Getenv("API_KEY"))
 	server.WithEngine(r)
 	server.WithBuilder(gcloud.NewCloudRunCommandBuilder())
 	server.WithFiatClient(fiatClient)

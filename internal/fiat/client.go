@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -83,9 +81,4 @@ func (c *client) Roles(account string) (Roles, error) {
 
 func (c *client) WithURL(url string) {
 	c.url = url
-}
-
-// Instance returns the client instance attached to the gin context.
-func Instance(c *gin.Context) Client {
-	return c.MustGet(ClientInstanceKey).(Client)
 }

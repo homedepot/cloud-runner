@@ -7,12 +7,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
 	internal "github.com/homedepot/cloud-runner/internal"
-	"github.com/homedepot/cloud-runner/internal/fiat"
 	"github.com/homedepot/cloud-runner/internal/gcloud"
 	"github.com/homedepot/cloud-runner/internal/sql"
 	cloudrunner "github.com/homedepot/cloud-runner/pkg"
-	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -22,15 +21,13 @@ var (
 )
 
 // CreateDeployment generates and runs a `gcloud run deploy` command.
-func CreateDeployment(c *gin.Context) {
+func (cc *Controller) CreateDeployment(c *gin.Context) {
 	dd := cloudrunner.DeploymentDescription{}
-	fc := fiat.Instance(c)
-	sc := sql.Instance(c)
-	builder := gcloud.Instance(c)
 
 	err := c.ShouldBindJSON(&dd)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -38,22 +35,26 @@ func CreateDeployment(c *gin.Context) {
 	user := c.GetHeader("X-Spinnaker-User")
 	if user == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "X-Spinnaker-User header not set"})
+
 		return
 	}
 
-	roles, err := fc.Roles(user)
+	roles, err := cc.FiatClient.Roles(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
-	credentials, err := sc.GetCredentials(dd.Account)
+	credentials, err := cc.SqlClient.GetCredentials(dd.Account)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound || err == sql.ErrCredentialsNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "credentials not found"})
+
 			return
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 			return
 		}
 	}
@@ -62,14 +63,17 @@ func CreateDeployment(c *gin.Context) {
 	// gets filtered down to an empty slice, they do not.
 	creds := filterCredentials([]cloudrunner.Credentials{credentials}, roles)
 	if len(creds) == 0 {
-		c.JSON(http.StatusForbidden, gin.H{"error": fmt.Sprintf("user %s does not have access to use account %s", user, dd.Account)})
+		c.JSON(http.StatusForbidden,
+			gin.H{"error": fmt.Sprintf("user %s does not have access to use account %s", user, dd.Account)})
+
 		return
 	}
 
 	// Build the command.
-	cmd, err := buildCommand(builder, dd, credentials)
+	cmd, err := cc.buildCommand(dd, credentials)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -81,15 +85,16 @@ func CreateDeployment(c *gin.Context) {
 		Status:    statusRunning,
 	}
 
-	err = sc.CreateDeployment(d)
+	err = cc.SqlClient.CreateDeployment(d)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
 	// We need to run the command concurrently and immediately return the
 	// deployment status to the user.
-	go run(cmd, d, sc)
+	go cc.run(cmd, d)
 
 	c.JSON(http.StatusCreated, d)
 }
@@ -97,10 +102,9 @@ func CreateDeployment(c *gin.Context) {
 // buildCommand builds the `gcloud run deploy` command. We can pass all fields in here, the command
 // builder will only set flags for valid inputs and return an error or ignore
 // on invalid inputs.
-func buildCommand(builder gcloud.CloudRunCommandBuilder,
-	dd cloudrunner.DeploymentDescription,
+func (cc *Controller) buildCommand(dd cloudrunner.DeploymentDescription,
 	credentials cloudrunner.Credentials) (gcloud.CloudRunCommand, error) {
-	return builder.
+	return cc.Builder.
 		AllowUnauthenticated(dd.AllowUnauthenticated).
 		Image(dd.Image).
 		MaxInstances(dd.MaxInstances).
@@ -112,7 +116,7 @@ func buildCommand(builder gcloud.CloudRunCommandBuilder,
 		Build()
 }
 
-func run(cmd gcloud.CloudRunCommand, d cloudrunner.Deployment, sc sql.Client) {
+func (cc *Controller) run(cmd gcloud.CloudRunCommand, d cloudrunner.Deployment) {
 	co, err := cmd.CombinedOutput()
 	if err != nil {
 		d.Status = statusFailed
@@ -124,7 +128,7 @@ func run(cmd gcloud.CloudRunCommand, d cloudrunner.Deployment, sc sql.Client) {
 	t := internal.CurrentTimeUTC()
 	d.EndTime = &t
 
-	err = sc.UpdateDeployment(d)
+	err = cc.SqlClient.UpdateDeployment(d)
 	if err != nil {
 		// Nothing to really do here besides add a log.
 		log.Printf("error updating deployment with ID %s: %s", d.ID, err.Error())
@@ -132,17 +136,18 @@ func run(cmd gcloud.CloudRunCommand, d cloudrunner.Deployment, sc sql.Client) {
 }
 
 // GetDeployment gets a deployment from the DB by a given deployment ID.
-func GetDeployment(c *gin.Context) {
-	sc := sql.Instance(c)
+func (cc *Controller) GetDeployment(c *gin.Context) {
 	id := c.Param("deploymentID")
 
-	d, err := sc.GetDeployment(id)
+	d, err := cc.SqlClient.GetDeployment(id)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "deployment not found"})
+
 			return
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 			return
 		}
 	}

@@ -5,14 +5,11 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 const (
 	BuilderInstanceKey = `CloudRunCommandBuilder`
 
-	defaultBase = `gcloud run deploy`
 	// Flags.
 	flagAllowUnauthenticated   = `--allow-unauthenticated`
 	flagNoAllowUnauthenticated = `--no-allow-unauthenticated`
@@ -32,6 +29,10 @@ const (
 	regexLowerCaseAlphanumericMax30CharsMin6Chars = `^[a-z]([a-z0-9-]{4,28})?[a-z0-9]$`
 )
 
+var (
+	defaultBase = []string{"gcloud", "run", "deploy"}
+)
+
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . CloudRunCommandBuilder
 
 // CloudRunCommand holds the data to build and run a `gcloud run deploy` command.
@@ -49,7 +50,6 @@ type CloudRunCommandBuilder interface {
 
 type cloudRunCommandBuilder struct {
 	allowUnauthenticated bool
-	base                 string
 	image                string
 	maxInstances         int
 	memory               string
@@ -73,14 +73,12 @@ type cloudRunCommand struct {
 
 // NewCloudRunCommand returns an implementation of a `gcloud run deploy` command.
 func NewCloudRunCommandBuilder() CloudRunCommandBuilder {
-	return &cloudRunCommandBuilder{
-		base: defaultBase,
-	}
+	return &cloudRunCommandBuilder{}
 }
 
 // Build builds, validates, and sets the command.
 func (c *cloudRunCommandBuilder) Build() (CloudRunCommand, error) {
-	command := []string{c.base}
+	command := defaultBase
 
 	err := c.validateRequiredFlags()
 	if err != nil {
@@ -234,9 +232,4 @@ func (c *cloudRunCommandBuilder) VPCConnector(vpcConnector string) CloudRunComma
 	c.vpcConnector = vpcConnector
 
 	return c
-}
-
-// Instance returns the builder instance attached to the gin context.
-func Instance(c *gin.Context) CloudRunCommandBuilder {
-	return c.MustGet(BuilderInstanceKey).(CloudRunCommandBuilder)
 }

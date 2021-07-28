@@ -112,14 +112,13 @@ func setup() {
 	// Disable debug logging.
 	gin.SetMode(gin.ReleaseMode)
 
-	api.WithKey("test")
-
 	// Create new gin instead of using gin.Default().
 	// This disables request logging which we don't want for tests.
 	e := gin.New()
 	e.Use(gin.Recovery())
 
 	s := api.NewServer()
+	s.WithAPIKey("test")
 	s.WithEngine(e)
 	s.WithBuilder(fakeBuilder)
 	s.WithFiatClient(fakeFiatClient)
