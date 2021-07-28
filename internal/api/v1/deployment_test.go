@@ -8,13 +8,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/jinzhu/gorm"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	internal "github.homedepot.com/cd/cloud-runner/internal"
 	"github.homedepot.com/cd/cloud-runner/internal/fiat"
 	"github.homedepot.com/cd/cloud-runner/internal/sql"
 	cloudrunner "github.homedepot.com/cd/cloud-runner/pkg"
-	"github.com/jinzhu/gorm"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Deployment", func() {
@@ -129,6 +129,10 @@ var _ = Describe("Deployment", func() {
 		})
 
 		Context("concurrent command run", func() {
+			BeforeEach(func() {
+				time.Sleep(500 * time.Millisecond)
+			})
+
 			When("getting the combined output returns an error", func() {
 				BeforeEach(func() {
 					fakeCommand.CombinedOutputReturns(nil, errors.New("error getting combined output"))

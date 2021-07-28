@@ -10,7 +10,6 @@ import (
 	cloudrunner "github.homedepot.com/cd/cloud-runner/pkg"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -547,26 +546,6 @@ var _ = Describe("Sql", func() {
 
 			It("succeeds", func() {
 				Expect(err).To(BeNil())
-			})
-		})
-	})
-
-	Describe("#Instance", func() {
-		var ctx *gin.Context
-		var c2 Client
-
-		BeforeEach(func() {
-			ctx = &gin.Context{}
-			ctx.Set(ClientInstanceKey, c)
-		})
-
-		When("it gets the instance", func() {
-			BeforeEach(func() {
-				c2 = Instance(ctx)
-			})
-
-			It("succeeds", func() {
-				Expect(c2).ToNot(BeNil())
 			})
 		})
 	})

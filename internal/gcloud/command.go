@@ -5,8 +5,6 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -234,9 +232,4 @@ func (c *cloudRunCommandBuilder) VPCConnector(vpcConnector string) CloudRunComma
 	c.vpcConnector = vpcConnector
 
 	return c
-}
-
-// Instance returns the builder instance attached to the gin context.
-func Instance(c *gin.Context) CloudRunCommandBuilder {
-	return c.MustGet(BuilderInstanceKey).(CloudRunCommandBuilder)
 }

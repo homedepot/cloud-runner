@@ -7,22 +7,22 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
 	"github.homedepot.com/cd/cloud-runner/internal/fiat"
 	"github.homedepot.com/cd/cloud-runner/internal/sql"
 	cloudrunner "github.homedepot.com/cd/cloud-runner/pkg"
-	"github.com/jinzhu/gorm"
 )
 
 // CreateCredentials creates a new account for Cloud Run.
 // If the account field it not provided it is generated in the format
 // `cr-<PROJECT_ID>`.
-func CreateCredentials(c *gin.Context) {
+func (cc *Controller) CreateCredentials(c *gin.Context) {
 	creds := cloudrunner.Credentials{}
-	sqlClient := sql.Instance(c)
 
 	err := c.ShouldBindJSON(&creds)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
 		return
 	}
 	// If an account name was not provided, generate one.
@@ -30,20 +30,23 @@ func CreateCredentials(c *gin.Context) {
 		creds.Account = fmt.Sprintf("cr-%s", creds.ProjectID)
 	}
 
-	_, err = sqlClient.GetCredentials(creds.Account)
+	_, err = cc.SqlClient.GetCredentials(creds.Account)
 	if err != gorm.ErrRecordNotFound && err != sql.ErrCredentialsNotFound {
 		if err == nil {
 			c.JSON(http.StatusConflict, gin.H{"error": "credentials already exists"})
+
 			return
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 			return
 		}
 	}
 
-	err = sqlClient.CreateCredentials(creds)
+	err = cc.SqlClient.CreateCredentials(creds)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -57,9 +60,10 @@ func CreateCredentials(c *gin.Context) {
 			ReadGroup: group,
 		}
 
-		err = sqlClient.CreateReadPermission(rp)
+		err = cc.SqlClient.CreateReadPermission(rp)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 			return
 		}
 	}
@@ -71,9 +75,10 @@ func CreateCredentials(c *gin.Context) {
 			WriteGroup: group,
 		}
 
-		err = sqlClient.CreateWritePermission(wp)
+		err = cc.SqlClient.CreateWritePermission(wp)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 			return
 		}
 	}
@@ -82,30 +87,32 @@ func CreateCredentials(c *gin.Context) {
 }
 
 // DeleteCredentials deletes credentials from the DB by account name.
-func DeleteCredentials(c *gin.Context) {
+func (cc *Controller) DeleteCredentials(c *gin.Context) {
 	account := c.Param("account")
-	fc := fiat.Instance(c)
-	sc := sql.Instance(c)
 
 	user := c.GetHeader("X-Spinnaker-User")
 	if user == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "X-Spinnaker-User header not set"})
+
 		return
 	}
 
-	roles, err := fc.Roles(user)
+	roles, err := cc.FiatClient.Roles(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
-	credentials, err := sc.GetCredentials(account)
+	credentials, err := cc.SqlClient.GetCredentials(account)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "credentials not found"})
+
 			return
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 			return
 		}
 	}
@@ -114,13 +121,16 @@ func DeleteCredentials(c *gin.Context) {
 	// gets filtered down to an empty slice, they do not.
 	creds := filterCredentials([]cloudrunner.Credentials{credentials}, roles)
 	if len(creds) == 0 {
-		c.JSON(http.StatusForbidden, gin.H{"error": fmt.Sprintf("user %s does not have access to delete account %s", user, account)})
+		c.JSON(http.StatusForbidden,
+			gin.H{"error": fmt.Sprintf("user %s does not have access to delete account %s", user, account)})
+
 		return
 	}
 
-	err = sc.DeleteCredentials(account)
+	err = cc.SqlClient.DeleteCredentials(account)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -128,17 +138,18 @@ func DeleteCredentials(c *gin.Context) {
 }
 
 // GetCredentials gets credentials by account name.
-func GetCredentials(c *gin.Context) {
-	sc := sql.Instance(c)
+func (cc *Controller) GetCredentials(c *gin.Context) {
 	account := c.Param("account")
 
-	creds, err := sc.GetCredentials(account)
+	creds, err := cc.SqlClient.GetCredentials(account)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound || err == sql.ErrCredentialsNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "credentials not found"})
+
 			return
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 			return
 		}
 	}
@@ -149,13 +160,11 @@ func GetCredentials(c *gin.Context) {
 // ListCredentials lists all credentials. If the query param 'onlyForUser' is true,
 // then grab the user from the `X-SPINNAKER-USER` header, get their groups,
 // and filter accounts by read/write groups that are contained within the user's groups.
-func ListCredentials(c *gin.Context) {
-	fc := fiat.Instance(c)
-	sc := sql.Instance(c)
-
-	creds, err := sc.ListCredentials()
+func (cc *Controller) ListCredentials(c *gin.Context) {
+	creds, err := cc.SqlClient.ListCredentials()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 		return
 	}
 
@@ -164,13 +173,16 @@ func ListCredentials(c *gin.Context) {
 	if c.Query("onlyForUser") == "true" {
 		user := c.GetHeader("X-Spinnaker-User")
 		if user == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "requested credentials only for user, but X-Spinnaker-User header was not set"})
+			c.JSON(http.StatusUnauthorized,
+				gin.H{"error": "requested credentials only for user, but X-Spinnaker-User header was not set"})
+
 			return
 		}
 
-		roles, err := fc.Roles(user)
+		roles, err := cc.FiatClient.Roles(user)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
 			return
 		}
 
@@ -197,6 +209,7 @@ func filterCredentials(credentials []cloudrunner.Credentials, roles fiat.Roles) 
 		for _, readGroup := range creds.ReadGroups {
 			if g[strings.ToLower(readGroup)] {
 				read = true
+
 				break
 			}
 		}
@@ -204,6 +217,7 @@ func filterCredentials(credentials []cloudrunner.Credentials, roles fiat.Roles) 
 		for _, writeGroup := range creds.WriteGroups {
 			if g[strings.ToLower(writeGroup)] {
 				write = true
+
 				break
 			}
 		}

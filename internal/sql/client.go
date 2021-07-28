@@ -7,9 +7,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	cloudrunner "github.homedepot.com/cd/cloud-runner/pkg"
 	"github.com/jinzhu/gorm"
+	cloudrunner "github.homedepot.com/cd/cloud-runner/pkg"
 
 	// Needed for connection.
 	_ "github.com/go-sql-driver/mysql"
@@ -304,9 +303,4 @@ func (c *client) WithPass(pass string) {
 // WithUser set the user for the connection.
 func (c *client) WithUser(user string) {
 	c.user = user
-}
-
-// Instance returns the client instance attached to the gin context.
-func Instance(c *gin.Context) Client {
-	return c.MustGet(ClientInstanceKey).(Client)
 }
