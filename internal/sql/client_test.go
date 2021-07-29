@@ -83,7 +83,15 @@ var _ = Describe("Sql", func() {
 
 		BeforeEach(func() {
 			credentials = cloudrunner.Credentials{
-				Account: "test-account",
+				Account:   "test-account",
+				ProjectID: "test-project-id",
+				ReadGroups: []string{
+					"group1",
+					"group2",
+				},
+				WriteGroups: []string{
+					"group1",
+				},
 			}
 		})
 
@@ -91,9 +99,73 @@ var _ = Describe("Sql", func() {
 			err = c.CreateCredentials(credentials)
 		})
 
+		When("inserting the read permission returns an error", func() {
+			BeforeEach(func() {
+				mock.ExpectBegin()
+				mock.ExpectExec(`(?i)^INSERT INTO "credentials_read_permissions" \(` +
+					`"account",` +
+					`"id",` +
+					`"read_group"` +
+					`\) VALUES \(\?,\?,\?\)$`).
+					WillReturnError(errors.New("error inserting read permission"))
+			})
+
+			It("returns an error", func() {
+				Expect(err).ToNot(BeNil())
+				Expect(err.Error()).To(Equal("error inserting read permission"))
+			})
+		})
+
+		When("inserting the write permission returns an error", func() {
+			BeforeEach(func() {
+				mock.ExpectBegin()
+				mock.ExpectExec(`(?i)^INSERT INTO "credentials_read_permissions" \(` +
+					`"account",` +
+					`"id",` +
+					`"read_group"` +
+					`\) VALUES \(\?,\?,\?\)$`).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(`(?i)^INSERT INTO "credentials_read_permissions" \(` +
+					`"account",` +
+					`"id",` +
+					`"read_group"` +
+					`\) VALUES \(\?,\?,\?\)$`).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(`(?i)^INSERT INTO "credentials_write_permissions" \(` +
+					`"account",` +
+					`"id",` +
+					`"write_group"` +
+					`\) VALUES \(\?,\?,\?\)$`).
+					WillReturnError(errors.New("error inserting write permission"))
+			})
+
+			It("returns an error", func() {
+				Expect(err).ToNot(BeNil())
+				Expect(err.Error()).To(Equal("error inserting write permission"))
+			})
+		})
+
 		When("it creates the credentials", func() {
 			BeforeEach(func() {
 				mock.ExpectBegin()
+				mock.ExpectExec(`(?i)^INSERT INTO "credentials_read_permissions" \(` +
+					`"account",` +
+					`"id",` +
+					`"read_group"` +
+					`\) VALUES \(\?,\?,\?\)$`).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(`(?i)^INSERT INTO "credentials_read_permissions" \(` +
+					`"account",` +
+					`"id",` +
+					`"read_group"` +
+					`\) VALUES \(\?,\?,\?\)$`).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(`(?i)^INSERT INTO "credentials_write_permissions" \(` +
+					`"account",` +
+					`"id",` +
+					`"write_group"` +
+					`\) VALUES \(\?,\?,\?\)$`).
+					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectExec(`(?i)^INSERT INTO "credentials" \(` +
 					`"account",` +
 					`"project_id"` +
@@ -136,72 +208,6 @@ var _ = Describe("Sql", func() {
 					`"status",` +
 					`"output"` +
 					`\) VALUES \(\?,\?,\?,\?,\?\)$`).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			})
-
-			It("succeeds", func() {
-				Expect(err).To(BeNil())
-			})
-		})
-	})
-
-	Describe("#CreateReadPermission", func() {
-		var rp cloudrunner.CredentialsReadPermission
-
-		BeforeEach(func() {
-			rp = cloudrunner.CredentialsReadPermission{
-				ID:        "test-id",
-				Account:   "test-account-name",
-				ReadGroup: "test-write-group",
-			}
-		})
-
-		JustBeforeEach(func() {
-			err = c.CreateReadPermission(rp)
-		})
-
-		When("it creates the read permissions", func() {
-			BeforeEach(func() {
-				mock.ExpectBegin()
-				mock.ExpectExec(`(?i)^INSERT INTO "credentials_read_permissions" \(` +
-					`"account",` +
-					`"id",` +
-					`"read_group"` +
-					`\) VALUES \(\?,\?,\?\)$`).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			})
-
-			It("succeeds", func() {
-				Expect(err).To(BeNil())
-			})
-		})
-	})
-
-	Describe("#CreateWritePermission", func() {
-		var wp cloudrunner.CredentialsWritePermission
-
-		BeforeEach(func() {
-			wp = cloudrunner.CredentialsWritePermission{
-				ID:         "test-id",
-				Account:    "test-account-name",
-				WriteGroup: "test-write-group",
-			}
-		})
-
-		JustBeforeEach(func() {
-			err = c.CreateWritePermission(wp)
-		})
-
-		When("it creates the write permissions", func() {
-			BeforeEach(func() {
-				mock.ExpectBegin()
-				mock.ExpectExec(`(?i)^INSERT INTO "credentials_write_permissions" \(` +
-					`"account",` +
-					`"id",` +
-					`"write_group"` +
-					`\) VALUES \(\?,\?,\?\)$`).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			})

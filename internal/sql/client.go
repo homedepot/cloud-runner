@@ -7,6 +7,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	cloudrunner "github.homedepot.com/cd/cloud-runner/pkg"
 
@@ -35,8 +36,6 @@ type Client interface {
 	Connection() (string, string)
 	CreateCredentials(cloudrunner.Credentials) error
 	CreateDeployment(cloudrunner.Deployment) error
-	CreateReadPermission(cloudrunner.CredentialsReadPermission) error
-	CreateWritePermission(cloudrunner.CredentialsWritePermission) error
 	DB() *gorm.DB
 	DeleteCredentials(string) error
 	GetCredentials(string) (cloudrunner.Credentials, error)
@@ -100,24 +99,44 @@ func (c *client) Connection() (string, string) {
 		c.user, c.pass, c.host, c.name)
 }
 
-// CreateCredentials inserts a new set of credentials into the DB.
+// CreateCredentials inserts a new set of credentials into the DB along with
+// its associated read/write groups. It uses a transaction, so that if any
+// operation fails the operations are rolled back.
 func (c *client) CreateCredentials(credentials cloudrunner.Credentials) error {
-	return c.db.Create(&credentials).Error
+	return c.db.Transaction(func(tx *gorm.DB) error {
+		for _, group := range credentials.ReadGroups {
+			r := cloudrunner.CredentialsReadPermission{
+				ID:        uuid.New().String(),
+				Account:   credentials.Account,
+				ReadGroup: group,
+			}
+
+			err := tx.Create(&r).Error
+			if err != nil {
+				return err
+			}
+		}
+
+		for _, group := range credentials.WriteGroups {
+			w := cloudrunner.CredentialsWritePermission{
+				ID:         uuid.New().String(),
+				Account:    credentials.Account,
+				WriteGroup: group,
+			}
+
+			err := tx.Create(&w).Error
+			if err != nil {
+				return err
+			}
+		}
+
+		return tx.Create(&credentials).Error
+	})
 }
 
 // CreateDeployment inserts a new deployment into the DB.
 func (c *client) CreateDeployment(d cloudrunner.Deployment) error {
 	return c.db.Create(&d).Error
-}
-
-// CreateReadPermission inserts a read permission into the database.
-func (c *client) CreateReadPermission(r cloudrunner.CredentialsReadPermission) error {
-	return c.db.Create(&r).Error
-}
-
-// CreateWritePermission inserts a write permission into the database.
-func (c *client) CreateWritePermission(w cloudrunner.CredentialsWritePermission) error {
-	return c.db.Create(&w).Error
 }
 
 // DB returns the underlying db.
