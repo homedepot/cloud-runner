@@ -10,21 +10,79 @@ Cloud Runner is a simple microservice that builds and runs a `gcloud run deploy`
 
 ### Development
 
+#### Environment Variables
+| Name | Description | Required | Notes
+|-|-:|-:|-:|
+| `API_KEY` | Validated for Create/Delete operations | ✔️  | |
+| `SQL_HOST` | SQL host | | If not set will default to local sqlite DB |
+| `SQL_NAME` | SQL database name | | If not set will default to local sqlite DB |
+| `SQL_PASS` | SQL password | | If not set will default to local sqlite DB |
+| `SQL_USER` | SQL username | | If not set will default to local sqlite DB |
+
 #### Build
 ```bash
-go build -o cloud-runner cmd/cloud-runner/main.go
+make build
 ```
 
-#### Required Environment Variables
-| Name | Description |
-|-|-:|
-| `API_KEY` | Validated for Create/Delete operations |
-| `SNOWQL_URL` | URL for SnowQL |
-| `SQL_HOST` | SQL host |
-| `SQL_NAME` | SQL database name |
-| `SQL_PASS` | SQL password |
-| `SQL_USER` | SQL username |
-| `THD_IDENTITY_CLIENT_ID` | THD IDP client ID (e.g. `spiffe://homedepot.dev/om-api-security-client`)  |
-| `THD_IDENTITY_CLIENT_SECRET` | THD IDP client secret |
-| `THD_IDENTITY_RESOURCE` | THD IDP resource (e.g. `spiffe://homedepot.dev/om-api-security-api`) |
-| `THD_IDENTITY_TOKEN_ENDPOINT` | THD IDP token endpoint (e.g. `https://identity-qa.homedepot.com/as/token.oauth2`) |
+#### Test
+```bash
+make test
+```
+
+#### Run Locally
+The following will show you how to run Cloud Runner locally and onboard your first account! Running locally will by default create a SQLite DB named `cloud-runner.db` in the current directory.
+
+1. Run cloud-runner
+```bash
+$ export API_KEY=test
+$ make run
+```
+2. Create an account. Cloud Runner connects to Spinnaker's fiat (at http://spin-fiat.spinnaker:7003) when deploying to GCP to verify the current user has read and write access to the account. The user is defined in the `X-Spinnaker-User` request header. When onboarding an account into Cloud Runner make sure to define the read and write groups correctly! If no `account` field is provided one will be generated in the format `cr-<GCP_PROJECT_ID>`.
+```bash
+$ curl -H "API-Key: test" localhost:80/v1/credentials -d '{
+  "account": "test-account-name",
+  "projectID": "test-project-id",
+  "readGroups": [
+    "test-group"
+  ],
+  "writeGroups": [
+    "test-group"
+  ]
+}' | jq
+```
+You should see the response
+```json
+{
+  "account": "test-account-name",
+  "projectID": "test-project-id",
+  "readGroups": [
+    "test-group"
+  ],
+  "writeGroups": [
+    "test-group"
+  ]
+}
+```
+3. List credentials
+```
+$ curl localhost:80/v1/credentials | jq
+```
+You should see the response
+```json
+{
+  "credentials": [
+    {
+      "account": "test-account-name",
+      "projectID": "test-project-id",
+      "readGroups": [
+        "test-group"
+      ],
+      "writeGroups": [
+        "test-group"
+      ]
+    }
+  ]
+}
+```
+To generate CURL commands to create and monitor a deployment, reference the swagger YAML at `api/swagger.yaml`.
+
