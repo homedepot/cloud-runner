@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 	"github.com/homedepot/cloud-runner/internal/fiat"
 	"github.com/homedepot/cloud-runner/internal/sql"
@@ -43,6 +42,13 @@ func (cc *Controller) CreateCredentials(c *gin.Context) {
 		}
 	}
 
+	// Make sure credentials read groups contain all write groups.
+	for _, wg := range creds.WriteGroups {
+		if !contains(creds.ReadGroups, wg) {
+			creds.ReadGroups = append(creds.ReadGroups, wg)
+		}
+	}
+
 	err = cc.SqlClient.CreateCredentials(creds)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -50,40 +56,18 @@ func (cc *Controller) CreateCredentials(c *gin.Context) {
 		return
 	}
 
-	// TODO make these calls part of the sql client to create the credentials,
-	// additionally they should be part of a transaction that will be rolled
-	// back if any fail.
-	for _, group := range creds.ReadGroups {
-		rp := cloudrunner.CredentialsReadPermission{
-			ID:        uuid.New().String(),
-			Account:   creds.Account,
-			ReadGroup: group,
-		}
-
-		err = cc.SqlClient.CreateReadPermission(rp)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-
-			return
-		}
-	}
-
-	for _, group := range creds.WriteGroups {
-		wp := cloudrunner.CredentialsWritePermission{
-			ID:         uuid.New().String(),
-			Account:    creds.Account,
-			WriteGroup: group,
-		}
-
-		err = cc.SqlClient.CreateWritePermission(wp)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-
-			return
-		}
-	}
-
 	c.JSON(http.StatusCreated, creds)
+}
+
+// contains returns true if slice s contains element e (case insensitive).
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if strings.EqualFold(a, e) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // DeleteCredentials deletes credentials from the DB by account name.

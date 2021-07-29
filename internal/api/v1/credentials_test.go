@@ -5,12 +5,12 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/homedepot/cloud-runner/internal/fiat"
-	"github.com/homedepot/cloud-runner/internal/sql"
-	cloudrunner "github.com/homedepot/cloud-runner/pkg"
 	"github.com/jinzhu/gorm"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/homedepot/cloud-runner/internal/fiat"
+	"github.com/homedepot/cloud-runner/internal/sql"
+	cloudrunner "github.com/homedepot/cloud-runner/pkg"
 )
 
 var _ = Describe("Credentials", func() {
@@ -91,28 +91,6 @@ var _ = Describe("Credentials", func() {
 			})
 		})
 
-		When("creating a read group returns an error", func() {
-			BeforeEach(func() {
-				fakeSQLClient.CreateReadPermissionReturns(errors.New("error creating read permission"))
-			})
-
-			It("returns status internal server error", func() {
-				Expect(res.StatusCode).To(Equal(http.StatusInternalServerError))
-				validateResponse(payloadErrorCreatingReadPermission)
-			})
-		})
-
-		When("creating a write group returns an error", func() {
-			BeforeEach(func() {
-				fakeSQLClient.CreateWritePermissionReturns(errors.New("error creating write permission"))
-			})
-
-			It("returns status internal server error", func() {
-				Expect(res.StatusCode).To(Equal(http.StatusInternalServerError))
-				validateResponse(payloadErrorCreatingWritePermission)
-			})
-		})
-
 		When("the account is not defined", func() {
 			BeforeEach(func() {
 				body = &bytes.Buffer{}
@@ -123,6 +101,19 @@ var _ = Describe("Credentials", func() {
 			It("generates the account name", func() {
 				Expect(res.StatusCode).To(Equal(http.StatusCreated))
 				validateResponse(payloadCredentialsCreatedNoAccountProvided)
+			})
+		})
+
+		When("the request contains write groups that are not present in read groups", func() {
+			BeforeEach(func() {
+				body = &bytes.Buffer{}
+				body.Write([]byte(payloadRequestCredentialsMismatchedGroups))
+				createRequest(http.MethodPost)
+			})
+
+			It("merges the write groups into the read groups", func() {
+				Expect(res.StatusCode).To(Equal(http.StatusCreated))
+				validateResponse(payloadCredentialsCreatedMergedGroups)
 			})
 		})
 
