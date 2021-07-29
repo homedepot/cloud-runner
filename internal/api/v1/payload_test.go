@@ -15,6 +15,18 @@ const payloadRequestCredentials = `{
 						]
           }`
 
+const payloadRequestCredentialsMismatchedGroups = `{
+            "account": "test-account",
+						"projectID": "test-project-id",
+						"readGroups": [
+							"gg_test1"
+						],
+						"writeGroups": [
+							"gg_test1",
+							"gg_test2"
+						]
+          }`
+
 const payloadRequestDeployment = `{
 						"account": "cr-test-project-id",
 						"allowUnauthenticated": false,
@@ -72,6 +84,19 @@ const payloadCredentials = `{
 const payloadCredentialsCreatedNoAccountProvided = `{
             "account": "cr-test-project-id",
             "projectID": "test-project-id"
+          }`
+
+const payloadCredentialsCreatedMergedGroups = `{
+            "account": "test-account",
+            "projectID": "test-project-id",
+            "readGroups": [
+              "gg_test1",
+              "gg_test2"
+            ],
+            "writeGroups": [
+              "gg_test1",
+              "gg_test2"
+            ]
           }`
 
 const payloadCredentialsCreated = `{
