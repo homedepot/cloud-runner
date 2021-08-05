@@ -12,6 +12,7 @@ import (
 
 // Server hold the gin engine and any clients we need for the API.
 type Server struct {
+	adminRoles []string
 	apiKey     string
 	e          *gin.Engine
 	builder    gcloud.CloudRunCommandBuilder
@@ -22,6 +23,12 @@ type Server struct {
 // NewServer returns a new instance of Server.
 func NewServer() Server {
 	return Server{}
+}
+
+// WithAdminRoles sets the admin roles that allow admin users
+// access to any set of credentials.
+func (s *Server) WithAdminRoles(adminRoles []string) {
+	s.adminRoles = adminRoles
 }
 
 // WithAPIKey sets the API key required for create and delete operations.
@@ -59,6 +66,7 @@ func (s *Server) Setup() {
 	{
 		// Declare a controller to hold non request-scoped services.
 		cc := &v1.Controller{
+			AdminRoles: s.adminRoles,
 			FiatClient: s.fiatClient,
 			SqlClient:  s.sqlClient,
 			Builder:    s.builder,

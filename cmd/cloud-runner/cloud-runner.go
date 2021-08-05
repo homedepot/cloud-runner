@@ -2,15 +2,14 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"strings"
-
 	"github.com/gin-gonic/gin"
 	ginprometheus "github.com/mcuadros/go-gin-prometheus"
 	"github.homedepot.com/cd/cloud-runner/internal/api"
 	"github.homedepot.com/cd/cloud-runner/internal/fiat"
 	"github.homedepot.com/cd/cloud-runner/internal/gcloud"
 	"github.homedepot.com/cd/cloud-runner/internal/sql"
+	"os"
+	"strings"
 )
 
 const (
@@ -59,6 +58,7 @@ func main() {
 
 	// Setup the server.
 	server := api.NewServer()
+	server.WithAdminRoles(formatAdminRoles(os.Getenv("ADMIN_ROLES")))
 	server.WithAPIKey(os.Getenv("API_KEY"))
 	server.WithEngine(r)
 	server.WithBuilder(gcloud.NewCloudRunCommandBuilder())
@@ -82,4 +82,25 @@ func reqCntURLLabelMappingFn(c *gin.Context) string {
 	}
 
 	return url
+}
+
+// formatAdminRoles takes in a string of comma separated admin roles
+// like "role1, role2" and converts it to a string slice.
+//
+// It removes all surrounding whitespace and converts
+// the roles to lowercase, then return the string slice, like so:
+//
+// [
+//   "role1",
+//   "role2"
+// ]
+func formatAdminRoles(commaSeparatedAdminRoles string) []string {
+	var adminRoles []string
+
+	adminRolesArr := strings.Split(commaSeparatedAdminRoles, ",")
+	for i := range adminRolesArr {
+		adminRoles = append(adminRoles, strings.ToLower(strings.TrimSpace(adminRolesArr[i])))
+	}
+
+	return adminRoles
 }

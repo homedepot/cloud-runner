@@ -7,6 +7,7 @@ import (
 )
 
 type Controller struct {
+	AdminRoles []string
 	FiatClient fiat.Client
 	SqlClient  sql.Client
 	Builder    gcloud.CloudRunCommandBuilder

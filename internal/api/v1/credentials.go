@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.homedepot.com/cd/cloud-runner/internal/fiat"
 	"github.homedepot.com/cd/cloud-runner/internal/sql"
 	cloudrunner "github.homedepot.com/cd/cloud-runner/pkg"
 )
@@ -103,7 +102,7 @@ func (cc *Controller) DeleteCredentials(c *gin.Context) {
 
 	// Check if the user has access to delete the account. If 'credentials'
 	// gets filtered down to an empty slice, they do not.
-	creds := filterCredentials([]cloudrunner.Credentials{credentials}, roles)
+	creds := cc.filterCredentials([]cloudrunner.Credentials{credentials}, roles)
 	if len(creds) == 0 {
 		c.JSON(http.StatusForbidden,
 			gin.H{"error": fmt.Sprintf("user %s does not have access to delete account %s", user, account)})
@@ -170,46 +169,8 @@ func (cc *Controller) ListCredentials(c *gin.Context) {
 			return
 		}
 
-		creds = filterCredentials(creds, roles)
+		creds = cc.filterCredentials(creds, roles)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"credentials": creds})
-}
-
-// filterCredentials takes in a list of credenitals and roles. It
-// returns a filtered list of credentials that contain both a read and write
-// group from the respective roles slice passed in.
-func filterCredentials(credentials []cloudrunner.Credentials, roles fiat.Roles) []cloudrunner.Credentials {
-	c := []cloudrunner.Credentials{}
-	g := map[string]bool{}
-
-	for _, role := range roles {
-		g[strings.ToLower(role.Name)] = true
-	}
-
-	for _, creds := range credentials {
-		var read, write bool
-
-		for _, readGroup := range creds.ReadGroups {
-			if g[strings.ToLower(readGroup)] {
-				read = true
-
-				break
-			}
-		}
-
-		for _, writeGroup := range creds.WriteGroups {
-			if g[strings.ToLower(writeGroup)] {
-				write = true
-
-				break
-			}
-		}
-
-		if read && write {
-			c = append(c, creds)
-		}
-	}
-
-	return c
 }

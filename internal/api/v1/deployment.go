@@ -61,7 +61,7 @@ func (cc *Controller) CreateDeployment(c *gin.Context) {
 
 	// Check if the user has r/w access to use the account. If 'credentials'
 	// gets filtered down to an empty slice, they do not.
-	creds := filterCredentials([]cloudrunner.Credentials{credentials}, roles)
+	creds := cc.filterCredentials([]cloudrunner.Credentials{credentials}, roles)
 	if len(creds) == 0 {
 		c.JSON(http.StatusForbidden,
 			gin.H{"error": fmt.Sprintf("user %s does not have access to use account %s", user, dd.Account)})
