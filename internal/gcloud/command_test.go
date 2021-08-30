@@ -131,6 +131,25 @@ var _ = Describe("Command", func() {
 			})
 		})
 
+		Context("when service account is set", func() {
+			BeforeEach(func() {
+				c.ServiceAccount("test-sa-id@google.project.id.test")
+			})
+
+			When("the service account is valid", func() {
+				It("succeeds", func() {
+					Expect(err).To(BeNil())
+					Expect(cmd.String()).To(HaveSuffix("gcloud run deploy fake-service " +
+						"--project fake-project-id " +
+						"--image gcr.io/not-a-project13765/not-an-image:9.0.4 " +
+						"--platform managed " +
+						"--region fake-region " +
+						"--allow-unauthenticated " +
+						"--service-account test-sa-id@google.project.id.test"))
+				})
+			})
+		})
+
 		When("the command is valid", func() {
 			It("succeeds", func() {
 				Expect(err).To(BeNil())

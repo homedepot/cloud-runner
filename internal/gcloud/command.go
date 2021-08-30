@@ -20,6 +20,7 @@ const (
 	flagProject                = `--project`
 	flagRegion                 = `--region`
 	flagVPCConnector           = `--vpc-connector`
+	flagServiceAccount         = `--service-account`
 	// Service name must use only lowercase alphanumeric characters and dashes.
 	// Cannot begin or end with a dash, and cannot be longer than 63 characters.
 	regexLowerCaseAlphanumericMax63Chars = `^[a-z]([a-z0-9-]{0,61})?[a-z0-9]$`
@@ -57,6 +58,7 @@ type cloudRunCommandBuilder struct {
 	region               string
 	service              string
 	vpcConnector         string
+	serviceAccount       string
 }
 
 //go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . CloudRunCommand
@@ -133,6 +135,12 @@ func (c *cloudRunCommandBuilder) Build() (CloudRunCommand, error) {
 		// VPC connector is validated server-side in GCP.
 		command = append(command, flagVPCConnector)
 		command = append(command, c.vpcConnector)
+	}
+
+	if c.serviceAccount != "" {
+		// Service Account for container service
+		command = append(command, flagServiceAccount)
+		command = append(command, c.serviceAccount)
 	}
 
 	cmd := exec.Command(command[0], command[1:]...)
@@ -233,3 +241,11 @@ func (c *cloudRunCommandBuilder) VPCConnector(vpcConnector string) CloudRunComma
 
 	return c
 }
+
+// ServiceAccount sets the --service-account flag (optional).
+func (c *cloudRunCommandBuilder) ServiceAccount(serviceAccount string) CloudRunCommandBuilder {
+	c.serviceAccount = serviceAccount
+
+	return c
+}
+
